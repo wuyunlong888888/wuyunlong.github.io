@@ -222,7 +222,7 @@
     .btn-green:hover { transform: translateY(-1px); }
 
     /* ===== 数据表格 ===== */
-    .table-scroll { overflow-x: auto; margin-top: 16px; }
+    .table-scroll { overflow-x: auto; overflow-y: auto; margin-top: 16px; max-height: calc(100vh - 320px); }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -675,7 +675,10 @@
           <option value="netSales">去退营业额</option>
           <option value="weekSales">本周销售额</option>
         </select>
-        <button class="btn btn-outline" onclick="addProfitRow()">➕ 添加</button>
+        <span style="font-size:12px;color:#888;">利润率：</span>
+        <input type="number" id="profitRateMin" placeholder="最低%" oninput="filterProfitByRate()" style="width:60px;padding:5px 8px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;outline:none;color:#555;">
+        <span style="font-size:12px;color:#888;">~</span>
+        <input type="number" id="profitRateMax" placeholder="最高%" oninput="filterProfitByRate()" style="width:60px;padding:5px 8px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;outline:none;color:#555;">
         <button class="btn btn-green" onclick="exportProfitTable()">📤 导出</button>
       </div>
     </div>
@@ -1773,26 +1776,39 @@ function formatChange(val) {
   return '<span class="change-zero">0.00%</span>';
 }
 
+// 利润率区间筛选
+function filterProfitByRate() {
+  currentProfitPage = 1;
+  renderProfitTable();
+}
+
 // 渲染商品利润分析表
 function renderProfitTable() {
   const tbody = document.getElementById('profitTableBody');
   const summaryBar = document.getElementById('profitSummaryBar');
   const pagination = document.getElementById('profitPagination');
 
-  if (profitData.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#aaa;padding:40px;">暂无数据</td></tr>';
+  // 获取利润率筛选条件
+  const minRate = parseFloat(document.getElementById('profitRateMin').value) || -Infinity;
+  const maxRate = parseFloat(document.getElementById('profitRateMax').value) || Infinity;
+
+  // 筛选数据
+  const filteredData = profitData.filter(item => item.profitRateCalc >= minRate && item.profitRateCalc <= maxRate);
+
+  if (filteredData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;color:#aaa;padding:40px;">暂无数据或无符合条件的商品</td></tr>';
     summaryBar.style.display = 'none';
     pagination.style.display = 'none';
     return;
   }
 
   // 计算总页数
-  const totalPages = Math.ceil(profitData.length / profitPageSize) || 1;
+  const totalPages = Math.ceil(filteredData.length / profitPageSize) || 1;
   if (currentProfitPage > totalPages) currentProfitPage = totalPages;
 
   // 获取当前页数据
   const start = (currentProfitPage - 1) * profitPageSize;
-  const pageData = profitData.slice(start, start + profitPageSize);
+  const pageData = filteredData.slice(start, start + profitPageSize);
 
   // 渲染核心指标表格
   tbody.innerHTML = pageData.map(item => `
@@ -1815,17 +1831,17 @@ function renderProfitTable() {
     </tr>
   `).join('');
 
-  // 计算汇总统计（使用全部数据）
-  const totalWeekSales = profitData.reduce((sum, item) => sum + item.weekSales, 0);
-  const totalRefund = profitData.reduce((sum, item) => sum + item.refundAmount, 0);
-  const totalNetSales = profitData.reduce((sum, item) => sum + item.netSales, 0);
-  const totalCost = profitData.reduce((sum, item) => sum + item.totalCost, 0);
-  const totalAdCost = profitData.reduce((sum, item) => sum + item.adCost, 0);
-  const totalProfit = profitData.reduce((sum, item) => sum + item.profit, 0);
+  // 计算汇总统计（使用筛选后的数据）
+  const totalWeekSales = filteredData.reduce((sum, item) => sum + item.weekSales, 0);
+  const totalRefund = filteredData.reduce((sum, item) => sum + item.refundAmount, 0);
+  const totalNetSales = filteredData.reduce((sum, item) => sum + item.netSales, 0);
+  const totalCost = filteredData.reduce((sum, item) => sum + item.totalCost, 0);
+  const totalAdCost = filteredData.reduce((sum, item) => sum + item.adCost, 0);
+  const totalProfit = filteredData.reduce((sum, item) => sum + item.profit, 0);
 
   // 更新统计显示
   summaryBar.style.display = 'flex';
-  document.getElementById('profitCount').textContent = profitData.length;
+  document.getElementById('profitCount').textContent = filteredData.length;
   document.getElementById('profitWeekSales').textContent = totalWeekSales.toFixed(2);
   document.getElementById('profitRefund').textContent = totalRefund.toFixed(2);
   document.getElementById('profitNetSales').textContent = totalNetSales.toFixed(2);
@@ -1835,7 +1851,7 @@ function renderProfitTable() {
 
   // 更新分页显示
   pagination.style.display = 'flex';
-  document.getElementById('profitPageInfo').textContent = `第 ${currentProfitPage} / ${totalPages} 页，共 ${profitData.length} 条`;
+  document.getElementById('profitPageInfo').textContent = `第 ${currentProfitPage} / ${totalPages} 页，共 ${filteredData.length} 条`;
   document.getElementById('profitPrevBtn').disabled = currentProfitPage <= 1;
   document.getElementById('profitNextBtn').disabled = currentProfitPage >= totalPages;
 }

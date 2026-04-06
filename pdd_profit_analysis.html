@@ -1126,39 +1126,50 @@ function syncDataToTable() {
     // 规则：先在规格维度找，匹配"X条"或"X对"格式；找不到则去商品规格列找；再找不到按颜色数量计算
     let count = 0;
     
-    function parseCount(str) {
+    // 从规格维度（短编码如KHSB3XL）解析件数
+    // 只识别"X条"、"X对"、"X件"或颜色分隔符（+、一、-），否则返回0
+    function parseCountFromSpec(str) {
       if (!str) return 0;
       // 匹配"X条"、"X对"、"X件"
       const match = str.match(/(\d+)(条|对|件)/);
-      if (match) {
-        return parseInt(match[1]);
-      }
-      // 统计【】内的颜色数量（如【浅灰色】为一个颜色）
-      const bracketColors = str.match(/【([^】]+)】/g);
-      if (bracketColors && bracketColors.length > 0) {
-        return bracketColors.length;
-      }
-      // 先去掉尺码部分（如4XL、XXL等），提取颜色部分
+      if (match) return parseInt(match[1]);
+      // 去掉尺码后按分隔符统计颜色数
       const colorPart = str.replace(/[-\s]*(XXL|XL|L|M|S|均码|\d+XL)[-\s]*/gi, '');
-      // 按分隔符计算颜色数量：+ 或 一（全角破折号）
-      const parts = colorPart.split(/[+一]/).filter(p => p.trim());
-      if (parts.length > 1) {
-        return parts.length;
+      const parts = colorPart.split(/[+一\-]/).filter(p => p.trim());
+      if (parts.length > 1) return parts.length;
+      // 规格维度是纯编码（如KHSB3XL），无法判断件数，返回0
+      return 0;
+    }
+
+    // 从商品规格（如【黑色一灰蓝一深灰一宝蓝】,3XL 130-155斤）解析件数
+    function parseCountFromProductSpec(str) {
+      if (!str) return 0;
+      // 匹配"X条"、"X对"、"X件"
+      const match = str.match(/(\d+)(条|对|件)/);
+      if (match) return parseInt(match[1]);
+      // 优先提取【】内的颜色部分，按「一」或「-」或「+」分割
+      const bracketMatch = str.match(/【([^】]+)】/);
+      if (bracketMatch) {
+        const colorPart = bracketMatch[1];
+        const colors = colorPart.split(/[一\-+]/).filter(p => p.trim());
+        if (colors.length > 0) return colors.length;
       }
-      // 如果原字符串包含尺码且没有颜色分隔符，则算1件
-      if (/XXL|XL|L|M|S|均码|\d+XL/i.test(str)) {
-        return 1;
-      }
+      // 无【】时直接分割（兼容旧格式）
+      const colorPart = str.replace(/[-\s]*(XXL|XL|L|M|S|均码|\d+XL|\d+斤)[-\s]*/gi, '');
+      const parts = colorPart.split(/[+一\-]/).filter(p => p.trim());
+      if (parts.length > 1) return parts.length;
+      // 有内容但无颜色分隔符，算1件
+      if (str.trim().length > 0) return 1;
       return 0;
     }
     
-    // 先在规格维度找
-    count = parseCount(spec);
-    // 找不到，去商品规格列找
+    // 先在规格维度找，规格维度返回0则去商品规格列找
+    count = parseCountFromSpec(spec);
     if (count === 0) {
-      const productSpec = getVal(row, colMap.productSpec);
-      count = parseCount(String(productSpec));
+      const productSpec = String(getVal(row, colMap.productSpec));
+      count = parseCountFromProductSpec(productSpec);
     }
+    // count === 0 时保留0，可通过"只看件数=0"按钮定位并手动修正
     
     const amount = parseFloat(getVal(row, colMap.amount)) || 0;
     const feeRate = 0.044;  // 默认扣费比例 4.4%

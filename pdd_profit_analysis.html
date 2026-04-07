@@ -532,7 +532,7 @@
         <div class="upload-zone" id="zone-file1" ondragover="onDragOver(event,'file1')" ondragleave="onDragLeave('file1')" ondrop="onDrop(event,'file1')">
           <input type="file" accept=".xlsx,.csv,.xls" onchange="handleFile(event,'file1')">
           <span class="upload-emoji">📦</span>
-          <div class="upload-name" id="name-file1">数据文件1</div>
+          <div class="upload-name" id="name-file1">订单数据</div>
           <div class="upload-hint" id="hint-file1">必填</div>
           <div class="upload-status" id="status-file1">✅ 已导入</div>
         </div>
@@ -540,16 +540,16 @@
         <div class="upload-zone" id="zone-file2" ondragover="onDragOver(event,'file2')" ondragleave="onDragLeave('file2')" ondrop="onDrop(event,'file2')">
           <input type="file" accept=".xlsx,.csv,.xls" onchange="handleFile(event,'file2')">
           <span class="upload-emoji">💰</span>
-          <div class="upload-name" id="name-file2">数据文件2</div>
-          <div class="upload-hint" id="hint-file2">必填</div>
+          <div class="upload-name" id="name-file2">商品成本表</div>
+          <div class="upload-hint" id="hint-file2">必填 · 货号 + 成本价格</div>
           <div class="upload-status" id="status-file2">✅ 已导入</div>
         </div>
         <!-- 数据文件3 -->
         <div class="upload-zone" id="zone-file3" ondragover="onDragOver(event,'file3')" ondragleave="onDragLeave('file3')" ondrop="onDrop(event,'file3')">
           <input type="file" accept=".xlsx,.csv,.xls" onchange="handleFile(event,'file3')">
           <span class="upload-emoji">🎯</span>
-          <div class="upload-name" id="name-file3">数据文件3</div>
-          <div class="upload-hint" id="hint-file3">可选</div>
+          <div class="upload-name" id="name-file3">推广费数据</div>
+          <div class="upload-hint" id="hint-file3">可选 · 商品ID + 花费</div>
           <div class="upload-status" id="status-file3">✅ 已导入</div>
         </div>
         <!-- 数据文件4 - 上周数据 -->
@@ -1127,11 +1127,11 @@ function syncDataToTable() {
     let count = 0;
     
     // 从规格维度（短编码如KHSB3XL）解析件数
-    // 只识别"X条"、"X对"、"X件"或颜色分隔符（+、一、-），否则返回0
+    // 识别"X条"、"X对"、"X件"、"X双"或颜色分隔符（+、一、-），否则返回0
     function parseCountFromSpec(str) {
       if (!str) return 0;
-      // 匹配"X条"、"X对"、"X件"
-      const match = str.match(/(\d+)(条|对|件)/);
+      // 匹配"X条"、"X对"、"X件"、"X双"
+      const match = str.match(/(\d+)(条|对|件|双)/);
       if (match) return parseInt(match[1]);
       // 去掉尺码后按分隔符统计颜色数
       const colorPart = str.replace(/[-\s]*(XXL|XL|L|M|S|均码|\d+XL)[-\s]*/gi, '');
@@ -1246,19 +1246,21 @@ function addRow() {
 // 搜索功能
 document.getElementById('searchInput').addEventListener('input', renderTable);
 
-// ===== 商家编码自定义搜索下拉 =====
-let _merchantCodes = [];   // 全量编码列表
-let _selectedMerchant = ''; // 当前选中值
+// ===== 商家编码自定义搜索下拉（多选） =====
+let _merchantCodes = [];      // 全量编码列表
+let _selectedMerchants = new Set(); // 当前选中商家编码集合
+
+function getSelectedMerchantCodes() {
+  return _selectedMerchants;
+}
 
 function updateMerchantFilter() {
-  // 同步隐藏select（供兼容）
   const select = document.getElementById('merchantFilter');
   const codes = [...new Set(allData.map(r => r.merchantCode).filter(c => c))];
   codes.sort();
   _merchantCodes = codes;
   select.innerHTML = '<option value="">全部商家编码</option>' +
     codes.map(c => `<option value="${c}">${c}</option>`).join('');
-  // 检测重复（含前缀的编码，如 1201 和 12010 可能混淆）
   renderMerchantOptions('');
 }
 
@@ -1282,24 +1284,46 @@ function filterMerchantList() {
 
 function renderMerchantOptions(kw) {
   const list = document.getElementById('merchantOptionList');
-
+  
+  // 计算每个商家编码的订单数量
+  const countMap = {};
+  allData.forEach(r => {
+    if (r.merchantCode) {
+      countMap[r.merchantCode] = (countMap[r.merchantCode] || 0) + 1;
+    }
+  });
+  
+  // 按数量从大到小排序
+  const sortedCodes = [..._merchantCodes].sort((a, b) => (countMap[b] || 0) - (countMap[a] || 0));
+  
   const filtered = kw
-    ? _merchantCodes.filter(c => c.toLowerCase().includes(kw.toLowerCase()))
-    : _merchantCodes;
+    ? sortedCodes.filter(c => c.toLowerCase().includes(kw.toLowerCase()))
+    : sortedCodes;
 
-  // 构建选项 HTML
-  let html = `<div class="merchant-opt${_selectedMerchant === '' ? ' selected' : ''}" data-val="" onclick="selectMerchant('','全部商家编码')">全部商家编码</div>`;
+  // 全部商家编码选项（清空选择）
+  const totalCount = allData.length;
+  const isAllSelected = _selectedMerchants.size === 0;
+  let html = `<div class="merchant-opt${isAllSelected ? ' selected' : ''}" data-val="" onclick="clearMerchantSelection()">
+    <span style="display:inline-block;width:16px;height:16px;border:1px solid #ccc;border-radius:3px;margin-right:6px;vertical-align:middle;${isAllSelected ? 'background:#e44d26;border-color:#e44d26;' : ''}"></span>
+    全部商家编码
+    <span style="margin-left:auto;color:#888;font-size:12px;">${totalCount}</span>
+  </div>`;
+
   filtered.forEach(c => {
-    const isSelected = c === _selectedMerchant ? ' selected' : '';
+    const isSelected = _selectedMerchants.has(c);
+    const count = countMap[c] || 0;
     let label = c;
     if (kw) {
-      // 高亮匹配部分
       const idx = c.toLowerCase().indexOf(kw.toLowerCase());
       if (idx >= 0) {
         label = c.slice(0, idx) + '<em>' + c.slice(idx, idx + kw.length) + '</em>' + c.slice(idx + kw.length);
       }
     }
-    html += `<div class="merchant-opt highlight${isSelected}" data-val="${c}" onclick="selectMerchant('${c}','${c}')">${label}</div>`;
+    html += `<div class="merchant-opt highlight${isSelected ? ' selected' : ''}" data-val="${c}" onclick="toggleMerchantSelection('${c}', event)">
+      <span style="display:inline-block;width:16px;height:16px;border:1px solid #ccc;border-radius:3px;margin-right:6px;vertical-align:middle;${isSelected ? 'background:#e44d26;border-color:#e44d26;' : ''}"></span>
+      ${label}
+      <span style="margin-left:auto;color:#888;font-size:12px;">${count}</span>
+    </div>`;
   });
 
   if (filtered.length === 0) {
@@ -1308,13 +1332,53 @@ function renderMerchantOptions(kw) {
   list.innerHTML = html;
 }
 
-function selectMerchant(val, label) {
-  _selectedMerchant = val;
-  document.getElementById('merchantFilterLabel').textContent = label || '全部商家编码';
-  // 同步隐藏select
-  document.getElementById('merchantFilter').value = val;
-  document.getElementById('merchantDropdownPanel').style.display = 'none';
+// 切换单个商家编码选中状态
+function toggleMerchantSelection(val, e) {
+  e.stopPropagation();
+  if (_selectedMerchants.has(val)) {
+    _selectedMerchants.delete(val);
+  } else {
+    _selectedMerchants.add(val);
+  }
+  // 更新标签文字
+  updateMerchantLabel();
+  // 重新渲染选项（更新勾选状态）
+  const kw = document.getElementById('merchantSearchInput').value.trim();
+  renderMerchantOptions(kw);
+  // 同步筛选表格
+  syncMerchantFilter();
   renderTable();
+}
+
+// 清空商家编码选择
+function clearMerchantSelection() {
+  _selectedMerchants.clear();
+  updateMerchantLabel();
+  syncMerchantFilter();
+  renderMerchantOptions('');
+  renderTable();
+}
+
+// 更新下拉按钮标签
+function updateMerchantLabel() {
+  const label = document.getElementById('merchantFilterLabel');
+  if (_selectedMerchants.size === 0) {
+    label.textContent = '全部商家编码';
+  } else if (_selectedMerchants.size === 1) {
+    label.textContent = [..._selectedMerchants][0];
+  } else {
+    label.textContent = `已选 ${_selectedMerchants.size} 个`;
+  }
+}
+
+// 同步隐藏select（供兼容）
+function syncMerchantFilter() {
+  const select = document.getElementById('merchantFilter');
+  if (_selectedMerchants.size === 1) {
+    select.value = [..._selectedMerchants][0];
+  } else {
+    select.value = '';
+  }
 }
 
 // 点击外部关闭下拉
@@ -1327,27 +1391,25 @@ document.addEventListener('click', function(e) {
 
 // 打开批量修改扣费比例模态框
 function openBatchFeeModal() {
-  const merchantFilter = document.getElementById('merchantFilter').value;
+  const merchantCodes = getSelectedMerchantCodes();
   const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
-  
-  // 计算符合条件的数据
   const filtered = allData.filter(r => {
     let match = true;
-    if (merchantFilter && r.merchantCode !== merchantFilter) match = false;
+    if (merchantCodes.size > 0 && !merchantCodes.has(r.merchantCode)) match = false;
     if (searchInput) {
       const searchable = Object.values(r).some(v => String(v).toLowerCase().includes(searchInput));
       if (!searchable) match = false;
     }
     return match;
   });
-  
+
+  const mc = merchantCodes.size === 0 ? '全部商家编码' :
+             merchantCodes.size === 1 ? [...merchantCodes][0] :
+             `${[...merchantCodes].slice(0, 2).join('、')} 等${merchantCodes.size}个商家`;
   document.getElementById('batchFeeCount').textContent = filtered.length;
-  document.getElementById('batchFeeCondition').textContent = merchantFilter || '全部商家编码';
-  
-  // 重置选择
+  document.getElementById('batchFeeCondition').textContent = mc;
   document.querySelector('input[name="batchFeeValue"][value="0.044"]').checked = true;
   document.getElementById('customFeeInput').style.display = 'none';
-  
   document.getElementById('batchFeeModal').classList.add('show');
 }
 
@@ -1359,7 +1421,6 @@ document.getElementById('batchFeeModal').addEventListener('click', function(e) {
   if (e.target === this) closeBatchFeeModal();
 });
 
-// 监听扣费比例选项切换
 document.querySelectorAll('input[name="batchFeeValue"]').forEach(radio => {
   radio.addEventListener('change', function() {
     document.getElementById('customFeeInput').style.display = this.value === 'custom' ? 'block' : 'none';
@@ -1368,10 +1429,9 @@ document.querySelectorAll('input[name="batchFeeValue"]').forEach(radio => {
 
 // 应用批量修改
 function applyBatchFee() {
-  const merchantFilter = document.getElementById('merchantFilter').value;
+  const merchantCodes = getSelectedMerchantCodes();
   const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
-  
-  // 获取选中的扣费比例
+
   let feeRate = document.querySelector('input[name="batchFeeValue"]:checked').value;
   if (feeRate === 'custom') {
     feeRate = parseFloat(document.getElementById('customFeeValue').value);
@@ -1382,12 +1442,11 @@ function applyBatchFee() {
   } else {
     feeRate = parseFloat(feeRate);
   }
-  
-  // 筛选符合条件的数据
+
   let count = 0;
   allData.forEach(r => {
     let match = true;
-    if (merchantFilter && r.merchantCode !== merchantFilter) match = false;
+    if (merchantCodes.size > 0 && !merchantCodes.has(r.merchantCode)) match = false;
     if (searchInput) {
       const searchable = Object.values(r).some(v => String(v).toLowerCase().includes(searchInput));
       if (!searchable) match = false;
@@ -1399,9 +1458,8 @@ function applyBatchFee() {
       count++;
     }
   });
-  
+
   closeBatchFeeModal();
-  // 重新生成利润分析数据
   generateProfitAnalysis();
   renderTable();
   showToast(`已修改 ${count} 条数据的扣费比例`);
@@ -1570,7 +1628,8 @@ function renderTableForFilter(filtered) {
   const start = (currentPage-1) * PAGE_SIZE;
   const pageData = filtered.slice(start, start+PAGE_SIZE);
 
-  document.getElementById('pageInfo').textContent = `件数=0 共 ${total} 条，第 ${currentPage}/${pages} 页`;
+  const filterLabel = showZeroCostOnly ? '成本=0' : '件数=0';
+  document.getElementById('pageInfo').textContent = `${filterLabel} 共 ${total} 条，第 ${currentPage}/${pages} 页`;
 
   const tbody = document.getElementById('tableBody');
   const visibleCols = columnConfig;
@@ -1603,7 +1662,15 @@ function renderTableForFilter(filtered) {
 
 function goPage(n) {
   currentPage = n;
-  renderTable();
+  if (showZeroCountOnly) {
+    const zeroData = allData.filter(r => r.count === 0);
+    renderTableForFilter(zeroData);
+  } else if (showZeroCostOnly) {
+    const zeroData = allData.filter(r => r.goodsCost === 0);
+    renderTableForFilter(zeroData);
+  } else {
+    renderTable();
+  }
 }
 
 // 导出表格
@@ -1908,6 +1975,96 @@ function exportProfitTable() {
   ]);
   
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+  // --- 样式设置 ---
+  // 1. 列宽：全部设为 14.5
+  ws['!cols'] = headers.map(() => ({ wch: 14.5 }));
+
+  // 2. 行高：全部设为 45（表头 + 数据行）
+  const rowCount = rows.length + 1; // +1 表头
+  ws['!rows'] = Array.from({ length: rowCount }, () => ({ hpt: 45 }));
+
+  // 边框样式（通用）
+  const borderAll = {
+    top:    { style: 'thin', color: { rgb: 'BFBFBF' } },
+    bottom: { style: 'thin', color: { rgb: 'BFBFBF' } },
+    left:   { style: 'thin', color: { rgb: 'BFBFBF' } },
+    right:  { style: 'thin', color: { rgb: 'BFBFBF' } }
+  };
+
+  // 表头样式：宋体12号、加粗、白色字、深蓝背景、居中
+  const headerStyle = {
+    font: { name: '宋体', sz: 12, bold: true, color: { rgb: 'FFFFFF' } },
+    alignment: { horizontal: 'center', vertical: 'center', wrap_text: true },
+    fill: { fgColor: { rgb: '1F4E79' } },
+    border: borderAll
+  };
+
+  // 数据行样式：宋体12号、黑色字、白色背景、居中
+  const dataStyle = {
+    font: { name: '宋体', sz: 12, color: { rgb: '000000' } },
+    alignment: { horizontal: 'center', vertical: 'center' },
+    fill: { fgColor: { rgb: 'FFFFFF' } },
+    border: borderAll
+  };
+
+  // 隔行变色（偶数行浅蓝背景）
+  const altRowStyle = {
+    font: { name: '宋体', sz: 12, color: { rgb: '000000' } },
+    alignment: { horizontal: 'center', vertical: 'center' },
+    fill: { fgColor: { rgb: 'E8F0FE' } },
+    border: borderAll
+  };
+
+  // 获取 worksheet range
+  const range = XLSX.utils.decode_range(ws['!ref']);
+
+  // 遍历所有单元格设置样式
+  for (let R = range.s.r; R <= range.e.r; R++) {
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const addr = XLSX.utils.encode_cell({ r: R, c: C });
+      if (!ws[addr]) continue;
+
+      if (R === 0) {
+        // 表头行
+        ws[addr].s = headerStyle;
+      } else if (R % 2 === 0) {
+        // 偶数数据行（浅蓝）
+        ws[addr].s = altRowStyle;
+      } else {
+        // 奇数数据行（白色）
+        ws[addr].s = dataStyle;
+      }
+    }
+  }
+
+  // 冻结首行
+  ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+
+  // 确保所有单元格（包括空值）都有样式 & 填充
+  for (let R = range.s.r; R <= range.e.r; R++) {
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const addr = XLSX.utils.encode_cell({ r: R, c: C });
+      if (!ws[addr]) {
+        // 空单元格也创建并设样式
+        ws[addr] = { v: '', t: 's' };
+      }
+      if (!ws[addr].s) {
+        // 未设置样式的单元格补上对应样式
+        if (R === 0) {
+          ws[addr].s = headerStyle;
+        } else if (R % 2 === 0) {
+          ws[addr].s = altRowStyle;
+        } else {
+          ws[addr].s = dataStyle;
+        }
+      }
+    }
+  }
+
+  // 表头行高加大（文字换行需要更多空间）
+  ws['!rows'][0] = { hpt: 50 };
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '商品利润分析');
   XLSX.writeFile(wb, '商品利润分析_' + new Date().toLocaleDateString('zh-CN').replace(/\//g, '-') + '.xlsx');

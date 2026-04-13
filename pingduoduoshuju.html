@@ -1141,6 +1141,10 @@ function syncDataToTable() {
         .replace(/(^|[-+一])\s*\d+\.\d+\s*(?=[-+一]|$)/gi, '$1')  // 去小数（如1.0）
         .replace(/^[-+一\s]+|[-+一\s]+$/g, '');  // 去首尾分隔符
       const parts = colorPart.split(/[+一\-]/).filter(p => p.trim());
+      // 如果分割后只有2段，且第二段是纯编码后缀（只有字母/数字，如E02），则不算
+      if (parts.length === 2 && /^[A-Za-z0-9]+$/.test(parts[1]) && parts[1].length <= 4) {
+        return 0;  // 规格维度是纯编码，无法判断件数，返回0
+      }
       if (parts.length > 1) return parts.length;
       // 规格维度是纯编码（如KHSB3XL），无法判断件数，返回0
       return 0;

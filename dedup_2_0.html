@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>查重2.0</title>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f3f7fc;
+  --card:#ffffff;
+  --text:#1f2937;
+  --muted:#64748b;
+  --soft:#eef4fb;
+  --line:#e6edf7;
+  --blue:#2563eb;
+  --blue2:#60a5fa;
+  --red:#ef4444;
+  --orange:#f59e0b;
+  --green:#10b981;
+  --purple:#7c3aed;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  background:var(--bg);
+}
+::selection{background:rgba(37,99,235,.18);color:#0f172a}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:#eef4fb;border-radius:999px}
+::-webkit-scrollbar-thumb{background:#cbd8ea;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#aebed4}
+.header{
+  height:64px;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  padding:0 24px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-shrink:0;
+  box-shadow:none;
+  position:relative;
+  overflow:visible;
+}
+.header::after{display:none;content:none}
+.hi{
+  width:38px;height:38px;
+  border-radius:12px;
+  background:#fff1ed;
+  border:1px solid #ffe0d7;
+  display:flex;align-items:center;justify-content:center;
+  color:#e44d26;font-size:18px;flex-shrink:0;
+  box-shadow:none;
+}
+.header h1{font-size:20px;font-weight:760;color:#111827;letter-spacing:-.02em}
+.header p{font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:0}
+.ha{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn,.exb{
+  border:0;cursor:pointer;font-family:inherit;
+  border-radius:14px;
+  padding:9px 16px;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0;
+  transition:transform .18s ease,background .18s ease,border-color .18s ease,color .18s ease;
+  display:inline-flex;align-items:center;gap:6px;
+  box-shadow:none!important;
+}
+.btn:hover,.exb:hover{transform:translateY(-1px);box-shadow:none!important}
+.btn-p,.exb-i{background:linear-gradient(135deg,#ff4d43,#ff7a45);color:#fff}
+.btn-g{background:#fff;border:1px solid var(--line);color:#334155}
+.btn-g:hover{border-color:#fed7aa;color:#e44d26;background:#fff7ed}
+.exb{font-size:14px;padding:9px 16px}
+.exb-e{background:linear-gradient(135deg,#10b981,#22c55e);color:#fff}
+.exb-r{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff}
+.exb-o{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff}
+.exb-all{background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff}
+.main{padding:16px 24px 22px;flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.sb{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:12px;margin-bottom:14px;flex-shrink:0}
+.sc{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:16px 18px;
+  min-width:0;
+  flex:1;
+  position:relative;
+  overflow:hidden;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+  box-shadow:none!important;
+}
+.sc:hover{transform:translateY(-1px);border-color:#d7e3f3;box-shadow:none!important}
+.sc::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:#e44d26;border-radius:16px 16px 0 0}
+.bl::before{background:linear-gradient(90deg,#2563eb,#60a5fa)}
+.rd::before{background:linear-gradient(90deg,#ef4444,#fb7185)}
+.od::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.gr::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.sc .v{font-size:28px;font-weight:800;line-height:1;color:#111827;letter-spacing:-.03em}
+.sc .l{font-size:13px;color:var(--muted);margin-top:8px;letter-spacing:0;font-weight:600}
+.rd .v{color:var(--red)}.od .v{color:var(--orange)}.gr .v{color:var(--green)}.bl .v{color:var(--blue)}
+.tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:12px;gap:6px;flex-shrink:0;background:#fff;border-radius:16px 16px 0 0;padding:8px 10px 0;border:1px solid var(--line);border-bottom:0}
+.tab{padding:10px 18px;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted);transition:all .18s;user-select:none;border-radius:12px 12px 0 0;font-weight:650}
+.tab.on{color:#e44d26;border-bottom-color:#e44d26;background:#fff7ed;font-weight:760}
+.tab:hover:not(.on){color:#334155;background:#f8fbff}
+.pn{display:none;flex:1;overflow:hidden;flex-direction:column;background:#fff;border:1px solid var(--line);border-top:0;border-radius:0 0 16px 16px;padding:14px}.pn.on{display:flex}
+.tb{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+.sbox{flex:1;min-width:220px;max-width:420px;position:relative}
+.sbox input{width:100%;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px 10px 38px;color:var(--text);font-size:14px;outline:none;transition:all .18s;box-shadow:none}
+.sbox input:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.sbox input::placeholder{color:#94a3b8}
+.sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:14px}
+.fg{display:flex;gap:6px;flex-wrap:wrap}
+.fb{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#64748b;font-size:13px;cursor:pointer;transition:all .18s;user-select:none;letter-spacing:0;font-weight:650}
+.fb.on,.fb:hover{background:#fff7ed;border-color:#fed7aa;color:#e44d26}
+.cb{background:#f8fbff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;color:#64748b;margin-left:auto;white-space:nowrap;font-weight:650}
+.cb span{color:#e44d26;font-weight:800}
+.exbar{display:flex;gap:10px;margin-bottom:10px;flex-shrink:0;flex-wrap:wrap}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;table-layout:auto;background:#fff}
+th{background:#ff5148;color:#fff;font-weight:700;padding:10px 10px;border-bottom:0;white-space:nowrap;position:sticky;top:0;z-index:10;letter-spacing:0;font-size:13px;text-transform:none;text-align:center}
+th:first-child{border-top-left-radius:12px}th:last-child{border-top-right-radius:12px}
+td{padding:9px 10px;border-bottom:1px solid #eef2f7;vertical-align:middle;line-height:1.35;text-align:center;white-space:nowrap;color:#334155;background:#fff}
+tbody tr:nth-child(even) td{background:#fbfdff}
+tr:hover td{background:#fff7ed}
+td.tl{text-align:left}td.tr{text-align:right}
+.pn-td{max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:all .18s;position:relative;text-align:left}
+.pn-td:hover{color:#e44d26}.pn-td.open{white-space:normal;overflow:visible;background:#fff7ed;border-radius:8px}
+.bdg{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;letter-spacing:0;border:1px solid transparent}
+.bg2{background:#ecfdf5;color:#059669;border-color:#bbf7d0}.br2{background:#fef2f2;color:#dc2626;border-color:#fecaca}.bo2{background:#fffbeb;color:#d97706;border-color:#fde68a}.bb2{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}
+.dp2{color:#dc2626;font-weight:800}.dn2{color:#d97706;font-weight:800}.dz2{color:#059669;font-weight:700}
+.tw2{overflow:auto;border-radius:14px;border:1px solid var(--line);background:#fff;flex:1;box-shadow:none}
+.trk{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:3px 8px;font-size:12px;color:#2563eb;cursor:pointer;display:inline-block;transition:all .18s}
+.trk:hover{background:#2563eb;border-color:#2563eb;color:#fff}
+.gc{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;transition:all .18s;box-shadow:none}
+.gc:hover{border-color:#d7e3f3}
+.gh{padding:12px 14px;display:flex;gap:10px;align-items:center;background:#f8fbff;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;transition:all .18s}
+.gh:hover{background:#fff7ed}.gtrk{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;color:#2563eb;font-weight:750}.gm{font-size:12px;color:#64748b;display:flex;gap:10px;flex-wrap:wrap;flex:1;align-items:center}.arr{margin-left:auto;color:#94a3b8;transition:.25s;font-size:13px}.collapse .arr{transform:rotate(-90deg)}.collapse .gb{display:none}.by{font-weight:700;color:#2563eb}.xd{color:#dc2626;font-size:12px;font-weight:800}.nd{text-align:center;padding:46px;color:#94a3b8;font-size:14px}.st{font-size:12px;color:#94a3b8;text-align:right;margin-bottom:4px;flex-shrink:0}#dl{flex:1;overflow:auto}
+.mo{position:fixed;inset:0;background:rgba(15,23,42,.38);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(6px)}.mo.hl{display:none}
+.mw{background:#fff;border:1px solid var(--line);border-radius:18px;width:520px;max-width:92vw;box-shadow:none;overflow:hidden}.mh{padding:18px 22px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);background:#fff}.mh h2{font-size:18px;font-weight:760;color:#111827;flex:1}.cx{font-size:18px;color:#94a3b8;cursor:pointer;padding:4px 8px;border-radius:8px;transition:all .18s;background:none;border:none}.cx:hover{background:#fef2f2;color:#dc2626}.mb{padding:22px}.mt{font-size:13px;color:#64748b;margin-bottom:16px;line-height:1.7}.dz{border:2px dashed #bfdbfe;border-radius:16px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .18s;background:#f8fbff}.dz:hover,.dz.ov{border-color:#ffad9d;background:#fff7ed;box-shadow:none}.dzi{font-size:38px;margin-bottom:10px;display:block;filter:none}.dzt{font-size:16px;font-weight:750;color:#111827;margin-bottom:6px}.dzs{font-size:13px;color:#64748b}.fi{display:none;padding:12px 14px;background:#f8fbff;border:1px solid var(--line);border-radius:14px;margin-top:14px;align-items:center;gap:10px;font-size:13px}.fi.sh{display:flex}.fii{font-size:28px;flex-shrink:0}.fn{flex:1;color:#111827;word-break:break-all}.fs{color:#64748b;white-space:nowrap}.fdel{color:#94a3b8;cursor:pointer;padding:2px 6px;border-radius:6px;background:none;border:none;font-size:14px;transition:.18s}.fdel:hover{background:#fef2f2;color:#dc2626}.fin{display:none}.lb{height:5px;background:#eef4fb;margin-top:14px;border-radius:999px;overflow:hidden;display:none}.lb.sh{display:block}.lf{height:100%;background:linear-gradient(90deg,#ff4d43,#ff7a45);width:0%;transition:width .3s;border-radius:999px;box-shadow:none}.ct{margin-top:14px;padding:12px 16px;background:#ecfdf5;border:1px solid #bbf7d0;border-radius:12px;font-size:13px;color:#059669;line-height:1.7}.ct span{color:#64748b}.mf{padding:14px 22px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.sb .sc{animation:fadeIn .25s ease both}.sb .sc:nth-child(2){animation-delay:.03s}.sb .sc:nth-child(3){animation-delay:.06s}.sb .sc:nth-child(4){animation-delay:.09s}.sb .sc:nth-child(5){animation-delay:.12s}
+@media(max-width:1100px){.sb{grid-template-columns:repeat(2,minmax(150px,1fr))}.main{padding:12px}.header{padding:0 14px}.header p{display:none}.tabs{overflow-x:auto}.tab{white-space:nowrap}.pn{padding:10px}.cb{margin-left:0}.exbar{overflow-x:auto}.sc .v{font-size:24px}.sc .l{font-size:12px}}
+
+</style>
+
+<style id="responsive-enhancement-v4">
+
+/* ===== 手机 / 平板端口增强适配 v4 + 去除顶部 logo ===== */
+.hi { display: none !important; }
+html, body { min-width: 0 !important; max-width: 100% !important; }
+body { -webkit-text-size-adjust: 100%; }
+.tw2, #dl { -webkit-overflow-scrolling: touch; }
+.header { gap: 0 !important; }
+.header > div:nth-child(2) { min-width: 0 !important; }
+
+@media (min-width: 769px) and (max-width: 1180px) {
+  .header { height: auto !important; min-height: 62px !important; padding: 10px 18px !important; }
+  .main { padding: 14px 18px 18px !important; }
+  .sb { display: grid !important; grid-template-columns: repeat(3, minmax(0,1fr)) !important; gap: 10px !important; }
+  .sc { min-width: 0 !important; padding: 14px !important; }
+  .sc .v { font-size: 30px !important; }
+  .tabs { overflow-x: auto !important; }
+  .tab { white-space: nowrap !important; }
+  .tw2 table { min-width: 1180px !important; }
+}
+
+@media (max-width: 768px) {
+  html, body { height: 100dvh !important; overflow: hidden !important; }
+  .header { height: auto !important; min-height: 60px !important; padding: 10px 12px !important; display: grid !important; grid-template-columns: 1fr auto !important; gap: 8px !important; }
+  .header h1 { font-size: 17px !important; line-height: 1.2 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+  .header p { display: none !important; }
+  .ha { margin-left: 0 !important; }
+  .ha .btn, .ha .exb { padding: 8px 10px !important; font-size: 12px !important; border-radius: 12px !important; white-space: nowrap !important; }
+  .main { padding: 10px !important; min-height: 0 !important; }
+  .sb { display: grid !important; grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 8px !important; margin-bottom: 10px !important; }
+  .sc { min-width: 0 !important; padding: 10px 12px !important; border-radius: 14px !important; }
+  .sc .v { font-size: 22px !important; }
+  .sc .l { font-size: 11px !important; margin-top: 5px !important; }
+  .tabs { overflow-x: auto !important; flex-wrap: nowrap !important; gap: 4px !important; margin-bottom: 0 !important; padding-bottom: 0 !important; }
+  .tab { flex: 0 0 auto !important; white-space: nowrap !important; padding: 9px 12px !important; font-size: 13px !important; }
+  .pn { min-height: 0 !important; padding: 10px !important; }
+  .tb { gap: 8px !important; align-items: stretch !important; }
+  .sbox { width: 100% !important; min-width: 0 !important; max-width: none !important; flex: 1 1 100% !important; }
+  .sbox input { height: 38px !important; font-size: 13px !important; }
+  .fg { width: 100% !important; overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 2px !important; }
+  .fb { flex: 0 0 auto !important; padding: 8px 12px !important; font-size: 12px !important; }
+  .cb { margin-left: 0 !important; width: 100% !important; text-align: center !important; }
+  .exbar { overflow-x: auto !important; flex-wrap: nowrap !important; gap: 8px !important; }
+  .exb { flex: 0 0 auto !important; padding: 8px 12px !important; font-size: 12px !important; border-radius: 12px !important; }
+  .tw2 { min-height: 0 !important; border-radius: 12px !important; }
+  .tw2 table { min-width: 1080px !important; }
+  th { font-size: 12px !important; padding: 8px 8px !important; }
+  td { font-size: 12px !important; padding: 7px 8px !important; }
+  #dl { min-height: 0 !important; }
+  .gc { border-radius: 12px !important; }
+  .gh { align-items: flex-start !important; gap: 8px !important; padding: 10px !important; }
+  .gm { font-size: 11px !important; }
+  .mw { width: calc(100% - 24px) !important; border-radius: 18px !important; }
+  .mb { padding: 18px !important; }
+  .dz { padding: 30px 12px !important; }
+}
+
+@media (max-width: 430px) {
+  .header { grid-template-columns: 1fr !important; }
+  .ha .btn, .ha .exb { width: 100% !important; justify-content: center !important; }
+  .sb { grid-template-columns: 1fr 1fr !important; }
+  .sc .v { font-size: 20px !important; }
+  .tw2 table { min-width: 980px !important; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="mo hl" id="importModal">
+  <div class="mw">
+    <div class="mh">
+      <span style="font-size:22px">&#128194;</span>
+      <h2>导入订单数据</h2>
+      <button class="cx" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="mb">
+      <div class="mt">点击下方区域选择 Excel 文件，选择后自动导入<br>支持 .xlsx / .xls 格式，自动解析 Sheet1</div>
+      <input type="file" id="fileInput" class="fin" accept=".xlsx,.xls">
+      <div class="dz" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <span class="dzi">&#128193;</span>
+        <div class="dzt">点击选择 Excel 文件</div>
+        <div class="dzs">支持 .xlsx / .xls 格式，选择后自动导入</div>
+      </div>
+      <div class="fi" id="fileInfo">
+        <span class="fii">&#128196;</span>
+        <div class="fn" id="fileName"></div>
+        <div class="fs" id="fileSize"></div>
+      </div>
+      <div class="lb" id="loadingBar"><div class="lf" id="loadingFill"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <div>
+    <h1>查重2.0</h1>
+    <p>异常退货分析 &#183; 数量差异检测 &#183; 重复快递单追踪</p>
+  </div>
+  <div class="ha">
+    <button class="btn exb exb-i" onclick="openModal()">&#128194; 导入数据</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="sb" id="sb"></div>
+  <div class="tabs">
+    <div class="tab on" onclick="sw(0)">&#128230; 数量差异订单</div>
+    <div class="tab" onclick="sw(1)">&#128260; 重复快递单</div>
+    <div class="tab" onclick="sw(2)">&#128203; 全部记录</div>
+  </div>
+  <div class="pn on" id="p0">
+    <div class="tb">
+      <div class="sbox"><span class="si">&#128269;</span><input id="s0" placeholder="搜索买家/售后单号/快递单号/线上订单号" oninput="rd()"></div>
+      <div class="fg">
+        <div class="fb on" onclick="sf(this,0)">全部差异</div>
+        <div class="fb" onclick="sf(this,1)">少退</div>
+        <div class="fb" onclick="sf(this,-1)">多退</div>
+      </div>
+      <div class="cb">共 <span id="c0">0</span> 条</div>
+    </div>
+    <div class="exbar">
+      <button class="btn exb exb-e" onclick="exportOrders()">&#128229; 导出数据</button>
+    </div>
+    <div class="tw2"><table><thead><tr><th>线上订单号</th><th>售后单号</th><th>买家帐号</th><th>申请日期</th><th>快递公司</th><th>快递单号</th><th>申请数量</th><th>实退数量</th><th>数量差异</th><th>商品名</th><th>颜色规格</th><th>卖家应退</th><th>实际应退</th><th>状态</th><th>线上状态</th><th>货物状态</th></tr></thead><tbody id="b0"></tbody></table></div>
+  </div>
+  <div class="pn" id="p1">
+    <div class="tb">
+      <div class="sbox"><span class="si">&#128269;</span><input id="s1" placeholder="搜索快递单号/买家/售后单号/线上订单号" oninput="rdup()"></div>
+      <div class="fg">
+        <div class="fb on" onclick="sdf(this,'all')">全部</div>
+        <div class="fb" onclick="sdf(this,'cross')">跨订单</div>
+        <div class="fb" onclick="sdf(this,'same')">同单多明细</div>
+      </div>
+      <div class="cb">共 <span id="c1">0</span> 组</div>
+    </div>
+    <div class="exbar">
+      <button class="btn exb exb-all" onclick="exportDup('all')">&#128230; 导出全部</button>
+      <button class="btn exb exb-r" onclick="exportDup('cross')">&#128230; 导出跨订单重复</button>
+      <button class="btn exb exb-o" onclick="exportDup('same')">&#128230; 导出同单多明细</button>
+    </div>
+    <div id="dl"></div>
+  </div>
+  <div class="pn" id="p2">
+    <div class="tb">
+      <div class="sbox"><span class="si">&#128269;</span><input id="s2" placeholder="搜索买家/售后单号/商品名/线上订单号" oninput="ra()"></div>
+      <div class="cb">共 <span id="c2">0</span> 条</div>
+    </div>
+    <div class="tw2"><table><thead><tr><th>线上订单号</th><th>售后单号</th><th>买家帐号</th><th>申请日期</th><th>快递公司</th><th>快递单号</th><th>申请数量</th><th>实退数量</th><th>数量差异</th><th>商品名</th><th>颜色规格</th><th>单价</th><th>卖家应退</th><th>状态</th><th>线上状态</th><th>货物状态</th><th>问题类型</th><th>原订单备注</th></tr></thead><tbody id="b2"></tbody></table></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+const DEF_R = [];
+const DEF_DUP = {};
+
+var R = DEF_R, DUP = DEF_DUP, df = 0, dpf = 'all', pf = null;
+
+function openModal(){ document.getElementById('importModal').classList.remove('hl'); }
+function closeModal(){ document.getElementById('importModal').classList.add('hl'); clearFile(); }
+function togglePn(el){ el.classList.toggle('open'); }
+
+document.getElementById('fileInput').addEventListener('change', function(e){ if(e.target.files.length) autoImport(e.target.files[0]); this.value=''; });
+
+var dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('ov'); });
+dz.addEventListener('dragleave', function(){ dz.classList.remove('ov'); });
+dz.addEventListener('drop', function(e){ e.preventDefault(); dz.classList.remove('ov'); if(e.dataTransfer.files.length) autoImport(e.dataTransfer.files[0]); });
+
+function autoImport(file){
+  if(!file.name.match(/\.xlsx?$/i)){ alert('请上传 .xlsx 或 .xls 文件'); return; }
+  pf = file;
+  document.getElementById('dropZone').style.display = 'none';
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = (file.size/1024).toFixed(1)+' KB';
+  document.getElementById('fileInfo').classList.add('sh');
+  doImport();
+}
+
+function clearFile(){
+  pf = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('fileInfo').classList.remove('sh');
+  document.getElementById('dropZone').style.display = '';
+}
+
+function doImport(){
+  if(!pf) return;
+  var lb = document.getElementById('loadingBar');
+  var lf = document.getElementById('loadingFill');
+  lb.classList.add('sh'); lf.style.width = '30%';
+  var reader = new FileReader();
+  reader.onload = function(e){
+    lf.style.width = '70%';
+    try{
+      var wb = XLSX.read(e.target.result, {type:'array'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var raw = XLSX.utils.sheet_to_json(ws);
+      if(!raw.length){ alert('未找到数据，请检查文件格式'); lb.classList.remove('sh'); return; }
+      var km = {'售后单号':'售后单号','线上订单号':'线上订单号','申请日期':'申请日期','买家帐号':'买家帐号','收货人':'收货人','退回快递公司':'退回快递公司','退回快递单号':'退回快递单号','退回快递单号(运单号)':'退回快递单号','快递单号':'退回快递单号','快递运单号':'退回快递单号','退货快递单号':'退回快递单号','退货快递公司':'退回快递公司','快递公司':'退回快递公司','申请数量':'申请数量','实退数量':'实退数量','商品名':'商品名','颜色规格':'颜色规格','单价':'单价','卖家应退金额':'卖家应退金额','实际应退金额':'实际应退金额','状态':'状态','线上状态':'线上状态','货物状态':'货物状态','问题类型':'问题类型','备注':'备注','原订单备注':'原订单备注'};
+      var cm = {};
+      var headers = Object.keys(raw[0]);
+      headers.forEach(function(k){ if(k in km) cm[km[k]] = k; });
+      // 模糊匹配：如果精确匹配失败，用关键词包含匹配
+      if(!cm['退回快递单号']){
+        headers.forEach(function(k){
+          if(k.indexOf('快递单号')>-1||k.indexOf('运单号')>-1||k.indexOf('物流单号')>-1) cm['退回快递单号']=k;
+        });
+      }
+      if(!cm['退回快递公司']){
+        headers.forEach(function(k){
+          if(k.indexOf('快递公司')>-1||k.indexOf('物流公司')>-1||k.indexOf('快递名称')>-1) cm['退回快递公司']=k;
+        });
+      }
+      var tnk = cm['退回快递单号'];
+      var clean = raw.map(function(row){
+        var apply = parseNum(gv(row, cm['申请数量']));
+        var real = parseNum(gv(row, cm['实退数量']));
+        var ds = '';
+        try{ var dv = gv(row, cm['申请日期']); if(dv){ var d = new Date(dv); if(!isNaN(d)) ds = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes()); else ds = String(dv); } } catch(e){}
+return {
+          '售后单号': fmtN(gv(row, cm['售后单号'])),
+          '线上订单号': fmtN(gv(row, cm['线上订单号'])),
+          '申请日期': ds,
+          '买家帐号': gv(row, cm['买家帐号']),
+          '退回快递公司': gv(row, cm['退回快递公司']),
+          '退回快递单号': gv(row, tnk),
+          '申请数量': apply, '实退数量': real, '数量差异': apply - real,
+          '商品名': gv(row, cm['商品名']), '颜色规格': gv(row, cm['颜色规格']),
+          '单价': fmtM(gv(row, cm['单价'])),
+          '卖家应退金额': fmtM(gv(row, cm['卖家应退金额'])),
+          '实际应退金额': fmtM(gv(row, cm['实际应退金额'])),
+          '状态': gv(row, cm['状态']), '线上状态': gv(row, cm['线上状态']),
+          '货物状态': gv(row, cm['货物状态']), '问题类型': gv(row, cm['问题类型']),
+          '原订单备注': gv(row, cm['原订单备注']),
+        };
+      }).filter(function(r){ return r['售后单号'] || r['买家帐号']; });
+
+      var tg2 = {};
+      clean.forEach(function(r){ var tn = r['退回快递单号']; if(tn){ if(!tg2[tn]) tg2[tn]=[]; tg2[tn].push(r); } });
+      var ndup = {};
+      Object.entries(tg2).forEach(function(e){ if(e[1].length>1) ndup[e[0]]=e[1]; });
+
+      R = clean; DUP = ndup;
+      lf.style.width = '100%';
+      setTimeout(function(){
+        bstats(); rd(); rdup(); ra();
+        closeModal(); lb.classList.remove('sh'); lf.style.width='0%';
+      }, 400);
+    } catch(ex){ alert('解析失败：'+ex.message); lb.classList.remove('sh'); }
+  };
+  reader.readAsArrayBuffer(pf);
+}
+
+function pad(n){ return String(n).padStart(2,'0'); }
+function gv(row, k){ if(!k||!row[k]) return ''; var v=row[k]; return (v===null||v===undefined)?'':String(v); }
+function parseNum(v){ try{ var f=parseFloat(v); return isNaN(f)?0:f; } catch(e){ return 0; } }
+function fmtN(v){ try{ var f=parseFloat(v); if(isNaN(f)) return ''; return f==Math.floor(f)?String(Math.floor(f)):String(v); } catch(e){ return ''; } }
+function fmtM(v){ try{ var f=parseFloat(v); if(isNaN(f)) return '0.00'; return f.toFixed(2); } catch(e){ return '0.00'; } }
+
+function sw(i){ document.querySelectorAll('.tab').forEach(function(t,j){ t.classList.toggle('on',i===j); }); document.querySelectorAll('.pn').forEach(function(p,j){ p.classList.toggle('on',i===j); }); }
+
+function dbg(d){ var n=parseInt(d)||0; if(n>0) return '<span class="dp2">+'+n+'（少退'+n+'件）</span>'; if(n<0) return '<span class="dn2">'+n+'（多退'+Math.abs(n)+'件）</span>'; return '<span class="dz2">0</span>'; }
+function sbg(s){ if(!s) return '&#8212;'; if(s.indexOf('退款成功')>-1||s.indexOf('已确认')>-1) return '<span class="bdg bg2">'+s+'</span>'; if(s.indexOf('失败')>-1||s.indexOf('拒绝')>-1) return '<span class="bdg br2">'+s+'</span>'; if(s.indexOf('处理中')>-1||s.indexOf('待')>-1) return '<span class="bdg bo2">'+s+'</span>'; return '<span class="bdg bb2">'+s+'</span>'; }
+function tlk(tn){ if(!tn) return '<span style="color:#4a5568">&#8212;</span>'; return '<span class="trk" onclick="cpy(\''+tn+'\')" title="点击复制">'+tn+'</span>'; }
+function cpy(tn){ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(tn).then(function(){ var e=event.target, o=e.textContent; e.textContent='已复制'; setTimeout(function(){ e.textContent=o; },1200); }); }
+
+function sf(el,v){ df=v; document.querySelectorAll('#p0 .fb').forEach(function(b){ b.classList.remove('on'); }); el.classList.add('on'); rd(); }
+function sdf(el,v){ dpf=v; document.querySelectorAll('#p1 .fb').forEach(function(b){ b.classList.remove('on'); }); el.classList.add('on'); rdup(); }
+
+function rd(){
+  var q = document.getElementById('s0').value.trim().toLowerCase();
+  var rows = R.filter(function(r){
+    var d = parseInt(r['数量差异'])||0;
+    if(df===1 && d<=0) return false;
+    if(df===-1 && d>=0) return false;
+    if(df===0 && d===0) return false;
+    if(q){ var h = [r['售后单号'],r['线上订单号'],r['买家帐号'],r['退回快递单号']].join('|').toLowerCase(); if(h.indexOf(q)===-1) return false; }
+    return true;
+  });
+  document.getElementById('c0').textContent = rows.length;
+  var tb = document.getElementById('b0');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="16" class="nd">&#10004; 无差异记录</td></tr>'; return; }
+  var html = rows.map(function(r){
+    return '<tr><td class="tl" style="font-family:monospace;font-size:11px">'+r['线上订单号']+'</td><td class="tl" style="font-family:monospace;font-size:11px">'+r['售后单号']+'</td><td class="tl"><span class="by">'+esc(r['买家帐号'])+'</span></td><td class="tl">'+esc(r['申请日期'])+'</td><td class="tl">'+esc(r['退回快递公司']||'&#8212;')+'</td><td class="tl">'+tlk(r['退回快递单号'])+'</td><td>'+r['申请数量']+'</td><td>'+r['实退数量']+'</td><td>'+dbg(r['数量差异'])+'</td><td class="pn-td tl" onclick="togglePn(this)" title="点击展开/收起">'+esc(r['商品名'])+'</td><td class="tl">'+esc(r['颜色规格'])+'</td><td class="tr">&#165;'+r['卖家应退金额']+'</td><td class="tr">&#165;'+r['实际应退金额']+'</td><td>'+sbg(r['状态'])+'</td><td>'+sbg(r['线上状态'])+'</td><td class="tl" style="font-size:11px">'+esc(r['货物状态']||'&#8212;')+'</td></tr>';
+
+  }).join('');
+  tb.innerHTML = html;
+}
+
+function rdup(){
+  var q = document.getElementById('s1').value.trim().toLowerCase();
+  var groups = Object.entries(DUP).filter(function(e){
+    var uo = []; var seen={}; e[1].forEach(function(r){ if(!seen[r['售后单号']]){ seen[r['售后单号']]=1; uo.push(r['售后单号']); } });
+    var ic = uo.length > 1;
+    if(dpf==='cross' && !ic) return false;
+    if(dpf==='same' && ic) return false;
+    if(q){ var h = [e[0],...e[1].map(function(r){ return r['买家帐号']+'|'+r['线上订单号']+'|'+r['售后单号']; })].join('|').toLowerCase(); if(h.indexOf(q)===-1) return false; }
+    return true;
+  });
+  document.getElementById('c1').textContent = groups.length;
+  var dl = document.getElementById('dl');
+  if(!groups.length){ dl.innerHTML='<div class="nd">&#10004; 无重复快递单记录</div>'; return; }
+  var html = groups.map(function(e){
+    var tn = e[0], rows = e[1];
+    var uo = []; var ub = []; var seen={}; var seenb={};
+    rows.forEach(function(r){ if(!seen[r['售后单号']]){ seen[r['售后单号']]=1; uo.push(r['售后单号']); } if(r['买家帐号']&&!seenb[r['买家帐号']]){ seenb[r['买家帐号']]=1; ub.push(r['买家帐号']); } });
+    var ic = uo.length > 1;
+    var ta = 0, tr2 = 0;
+    rows.forEach(function(r){ ta += (parseInt(r['申请数量'])||0); tr2 += (parseInt(r['实退数量'])||0); });
+    var hd = ta !== tr2;
+    var hdr = '<div class="gh" onclick="tgh(this)"><span>'+(ic?'&#128308;':'&#127774;')+'</span><span class="gtrk">'+tn+'</span><div class="gm"><span>'+(ic?'<span class="bdg br2">跨订单</span>':'<span class="bdg bo2">同单多明细</span>')+'</span><span>涉及 <b>'+uo.length+'</b> 个售后单</span><span>买家: <b class="by">'+ub.join(', ')+'</b></span><span>'+rows.length+' 条明细</span>'+(hd?'<span class="xd">&#9888; 申请'+ta+'件 实退'+tr2+'件</span>':'<span style="color:#34d399;font-size:11px">数量匹配</span>')+'</div><span class="arr">&#9660;</span></div>';
+    var body = '<div class="gb"><div class="tw2" style="border-radius:0;border:none"><table><thead><tr><th>线上订单号</th><th>售后单号</th><th>买家帐号</th><th>申请日期</th><th>快递公司</th><th>申请数量</th><th>实退数量</th><th>差异</th><th>商品名</th><th>颜色规格</th><th>卖家应退</th><th>实际应退</th><th>货物状态</th><th>线上状态</th></tr></thead><tbody>'+rows.map(function(r){ return '<tr><td style="font-family:monospace;font-size:11px;white-space:nowrap">'+r['线上订单号']+'</td><td style="font-family:monospace;font-size:11px;white-space:nowrap">'+r['售后单号']+'</td><td><span class="by">'+esc(r['买家帐号'])+'</span></td><td style="white-space:nowrap;font-size:11px">'+esc(r['申请日期'])+'</td><td style="white-space:nowrap">'+esc(r['退回快递公司']||'&#8212;')+'</td><td style="text-align:center">'+r['申请数量']+'</td><td style="text-align:center">'+r['实退数量']+'</td><td style="text-align:center">'+dbg(r['数量差异'])+'</td><td class="pn-td" onclick="togglePn(this)" title="点击展开/收起">'+esc(r['商品名'])+'</td><td style="white-space:nowrap">'+esc(r['颜色规格'])+'</td><td style="text-align:right">&#165;'+r['卖家应退金额']+'</td><td style="text-align:right">&#165;'+r['实际应退金额']+'</td><td style="font-size:11px">'+esc(r['货物状态']||'&#8212;')+'</td><td>'+sbg(r['线上状态'])+'</td></tr>'; }).join('')+'</tbody></table></div></div>';
+    return '<div class="gc">'+hdr+body+'</div>';
+  }).join('');
+  dl.innerHTML = html;
+}
+
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function tgh(h){ h.parentElement.classList.toggle('collapse'); }
+
+function ra(){
+  var q = document.getElementById('s2').value.trim().toLowerCase();
+  var rows = q ? R.filter(function(r){ var h=[r['售后单号'],r['线上订单号'],r['买家帐号'],r['退回快递单号'],r['商品名']].join('|').toLowerCase(); return h.indexOf(q)>-1; }) : R;
+  document.getElementById('c2').textContent = rows.length;
+  document.getElementById('b2').innerHTML = rows.map(function(r){
+    return '<tr><td style="white-space:nowrap;font-family:monospace;font-size:11px">'+r['线上订单号']+'</td><td style="white-space:nowrap;font-family:monospace;font-size:11px">'+r['售后单号']+'</td><td><span class="by">'+esc(r['买家帐号'])+'</span></td><td style="white-space:nowrap">'+esc(r['申请日期'])+'</td><td>'+esc(r['退回快递公司']||'&#8212;')+'</td><td>'+tlk(r['退回快递单号'])+'</td><td style="text-align:center">'+r['申请数量']+'</td><td style="text-align:center">'+r['实退数量']+'</td><td style="text-align:center">'+dbg(r['数量差异'])+'</td><td class="pn-td" onclick="togglePn(this)" title="点击展开/收起">'+esc(r['商品名'])+'</td><td style="white-space:nowrap">'+esc(r['颜色规格'])+'</td><td style="text-align:right">&#165;'+r['单价']+'</td><td style="text-align:right">&#165;'+r['卖家应退金额']+'</td><td>'+sbg(r['状态'])+'</td><td>'+sbg(r['线上状态'])+'</td><td style="font-size:11px">'+esc(r['货物状态']||'&#8212;')+'</td><td style="font-size:11px">'+esc(r['问题类型']||'&#8212;')+'</td><td class="pn-td" onclick="togglePn(this)" title="点击展开/收起">'+esc(r['原订单备注']||'&#8212;')+'</td></tr>';
+  }).join('');
+}
+
+function bstats(){
+  var dd = 0, ls = 0, ms = 0;
+  R.forEach(function(r){ var d=parseInt(r['数量差异'])||0; if(d!==0) dd++; if(d>0) ls++; if(d<0) ms++; });
+  document.getElementById('sb').innerHTML = '<div class="sc bl"><div class="v">'+R.length+'</div><div class="l">总记录数</div></div><div class="sc rd"><div class="v">'+dd+'</div><div class="l">数量差异记录</div></div><div class="sc od"><div class="v">'+ls+'</div><div class="l">少退件异常</div></div><div class="sc rd"><div class="v">'+ms+'</div><div class="l">多退件异常</div></div><div class="sc od"><div class="v">'+Object.keys(DUP).length+'</div><div class="l">重复快递单号</div></div>';
+}
+
+bstats(); rd(); rdup(); ra();
+
+function exportDup(type){
+  var q = document.getElementById('s1').value.trim().toLowerCase();
+  var groups = Object.entries(DUP).filter(function(e){
+    var uo = []; var seen={}; e[1].forEach(function(r){ if(!seen[r['售后单号']]){ seen[r['售后单号']]=1; uo.push(r['售后单号']); } });
+    var ic = uo.length > 1;
+    if(type==='cross' && !ic) return false;
+    if(type==='same' && ic) return false;
+    if(q){ var h = [e[0],...e[1].map(function(r){ return r['买家帐号']+'|'+r['线上订单号']+'|'+r['售后单号']; })].join('|').toLowerCase(); if(h.indexOf(q)===-1) return false; }
+    return true;
+  });
+  if(!groups.length){ alert('无数据可导出'); return; }
+  var data = [];
+  groups.forEach(function(e){
+    var tn = e[0], rows = e[1];
+    var uo = []; var seen={}; rows.forEach(function(r){ if(!seen[r['售后单号']]){ seen[r['售后单号']]=1; uo.push(r['售后单号']); } });
+    var ic = uo.length > 1;
+    rows.forEach(function(r){
+      var d = parseInt(r['数量差异'])||0;
+      data.push({
+        '快递单号': tn,
+        '重复类型': ic ? '跨订单' : '同单多明细',
+        '涉及售后单数': uo.length,
+        '线上订单号': r['线上订单号'],
+        '售后单号': r['售后单号'],
+        '买家帐号': r['买家帐号'],
+        '申请日期': r['申请日期'],
+        '快递公司': r['退回快递公司'],
+        '申请数量': r['申请数量'],
+        '实退数量': r['实退数量'],
+        '数量差异': d,
+        '差异说明': d>0?'少退'+d+'件':d<0?'多退'+Math.abs(d)+'件':'无差异',
+        '商品名': r['商品名'],
+        '颜色规格': r['颜色规格'],
+        '卖家应退': r['卖家应退金额'],
+        '实际应退': r['实际应退金额'],
+        '货物状态': r['货物状态'],
+        '线上状态': r['线上状态']
+      });
+    });
+  });
+  var sheetName = type==='all'?'全部重复快递':type==='cross'?'跨订单重复':'同单多明细';
+  var fileName = type==='all'?'全部重复快递单导出.xlsx':type==='cross'?'跨订单重复快递单导出.xlsx':'同单多明细快递单导出.xlsx';
+  var ws = XLSX.utils.json_to_sheet(data);
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  var wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  var blob = new Blob([wbout], {type:'application/octet-stream'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportOrders(){
+  var q = document.getElementById('s0').value.trim().toLowerCase();
+  var rows = R.filter(function(r){
+    var d = parseInt(r['数量差异'])||0;
+    if(df===1 && d<=0) return false;
+    if(df===-1 && d>=0) return false;
+    if(q){ var h = [r['售后单号'],r['线上订单号'],r['买家帐号'],r['退回快递单号']].join('|').toLowerCase(); if(h.indexOf(q)===-1) return false; }
+    return true;
+  });
+  if(!rows.length){ alert('无数据可导出'); return; }
+  var data = rows.map(function(r){
+    var d = parseInt(r['数量差异'])||0;
+    return {
+      '线上订单号': r['线上订单号'],
+      '售后单号': r['售后单号'],
+      '买家帐号': r['买家帐号'],
+      '申请日期': r['申请日期'],
+      '快递公司': r['退回快递公司'],
+      '快递单号': r['退回快递单号'],
+      '申请数量': r['申请数量'],
+      '实退数量': r['实退数量'],
+      '数量差异': d,
+      '差异说明': d>0?'少退'+d+'件':d<0?'多退'+Math.abs(d)+'件':'无差异',
+      '商品名': r['商品名'],
+      '颜色规格': r['颜色规格'],
+      '单价': r['单价'],
+      '卖家应退': r['卖家应退金额'],
+      '实际应退': r['实际应退金额'],
+      '状态': r['状态'],
+      '线上状态': r['线上状态'],
+      '货物状态': r['货物状态']
+    };
+  });
+  var ws = XLSX.utils.json_to_sheet(data);
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '差异订单');
+  var wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  var blob = new Blob([wbout], {type:'application/octet-stream'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '差异订单导出.xlsx';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

@@ -1,34 +1,1604 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的工具箱</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            text-align: center;
-        }
-        h1 { color: #333; margin-bottom: 30px; }
-        .btn {
-            display: inline-block;
-            margin: 10px;
-            padding: 15px 30px;
-            background: #0366d6;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        .btn:hover { background: #0256c7; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>锦度电商工具箱 - iOS系统风格版</title>
+  <style>
+    :root {
+      --bg: #f5f8fd;
+      --panel: #ffffff;
+      --text: #0b1736;
+      --muted: #6e7b91;
+      --line: #e9eef7;
+      --shadow: 0 18px 50px rgba(43, 72, 116, 0.08);
+      --shadow-soft: 0 10px 26px rgba(43, 72, 116, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --red-1: #ff1c2f;
+      --red-2: #ff6b5b;
+      --orange-1: #ff7800;
+      --orange-2: #ffa72d;
+      --neon-blue: #00d4ff;
+      --neon-purple: #7b2ff7;
+      --deep-1: #1a1a2e;
+      --deep-2: #16213e;
+      --deep-3: #0f3460;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 10%, rgba(44, 126, 255, 0.08), transparent 28%),
+        radial-gradient(circle at 90% 25%, rgba(255, 126, 28, 0.06), transparent 26%),
+        linear-gradient(180deg, #fbfdff 0%, #f3f7fc 100%);
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1920px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 0 44px 42px;
+    }
+
+    .topbar {
+      height: 108px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      border: 1px solid rgba(217, 226, 239, 0.88);
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(14px);
+      margin: 18px 0 0;
+      padding: 0 42px;
+      border-radius: 28px;
+      box-shadow: 0 12px 30px rgba(51, 91, 150, 0.055);
+      overflow: hidden;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 226px;
+    }
+
+    .brand-mark {
+      width: 68px;
+      height: 68px;
+      display: grid;
+      place-items: center;
+      border-radius: 24px;
+      padding: 5px;
+      background:
+        radial-gradient(circle at 22% 22%, rgba(117, 201, 255, 0.18), rgba(117,201,255,0) 32%),
+        radial-gradient(circle at 82% 18%, rgba(255, 204, 84, 0.18), rgba(255,204,84,0) 26%),
+        linear-gradient(145deg, #ffffff 0%, #f5f8ff 48%, #eef2ff 100%);
+      border: 1px solid rgba(120, 151, 227, 0.34);
+      box-shadow:
+        0 14px 30px rgba(67, 95, 173, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96),
+        inset 0 -10px 18px rgba(88, 116, 195, 0.08);
+    }
+
+    .brand-mark svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 8px 16px rgba(79, 98, 188, 0.18));
+    }
+
+    .brand-title {
+      line-height: 1.05;
+    }
+
+    .brand-title strong {
+      display: block;
+      font-size: 30px;
+      letter-spacing: 1px;
+      color: #273a74;
+      font-weight: 700;
+      font-family: "STSong", "Songti SC", "Noto Serif SC", serif;
+    }
+
+    .brand-title span {
+      display: block;
+      margin-top: 8px;
+      color: #6d79a6;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .divider {
+      width: 1px;
+      height: 42px;
+      background: #d7e0ee;
+    }
+
+    .slogan {
+      color: #5c6b99;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(760px, 1fr) 590px;
+      gap: 18px;
+      padding-top: 28px;
+    }
+
+    .main-panel,
+    .right-panel {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(231, 237, 247, 0.95);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius-lg);
+    }
+
+    .main-panel {
+      min-height: 875px;
+      padding: 34px 36px 48px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 30px;
+      font-weight: 850;
+      letter-spacing: 0.7px;
+      margin: 0 0 34px;
+      color: #071533;
+    }
+
+    .title-bar {
+      width: 7px;
+      height: 34px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ffb03e, #ff761a);
+      box-shadow: 0 8px 20px rgba(255, 129, 28, 0.22);
+    }
+
+    .blank-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 24px 22px;
+    }
+
+    .blank-card {
+      height: 128px;
+      border-radius: 16px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.78));
+      border: 1px solid rgba(226, 233, 243, 0.9);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 8px 22px rgba(43, 72, 116, 0.045);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .blank-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 20px 40px rgba(43, 72, 116, 0.12);
+    }
+
+    /* 含工具名的卡片样式 */
+    .blank-card[data-has-tool] {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding-bottom: 14px;
+      background: rgba(255, 255, 255, 0.55);
+      border-color: rgba(79, 70, 229, 0.15);
+    }
+
+    .blank-card[data-has-tool]:hover {
+      border-color: rgba(79, 70, 229, 0.4);
+      box-shadow:
+        0 0 20px rgba(79, 70, 229, 0.2),
+        0 8px 32px rgba(79, 70, 229, 0.15);
+    }
+
+    .blank-card .card-pattern {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+      transition: all 0.3s;
+      z-index: 1;
+    }
+
+    .blank-card:hover .card-pattern {
+      transform: translateX(-50%) scale(1.08);
+      box-shadow:
+        0 0 0 6px rgba(99, 102, 241, 0.1),
+        0 8px 20px rgba(99, 102, 241, 0.25);
+    }
+
+    .blank-card strong {
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(30, 41, 59, 0.9);
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      font-family: "Source Han Sans", "Noto Sans CJK SC", "Alibaba PuHuiTi", "Microsoft YaHei", sans-serif;
+    }
+
+    .right-panel {
+      padding: 18px 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .platform {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(231, 237, 247, 0.95);
+      border-radius: 24px;
+      padding: 16px 16px 16px;
+      box-shadow: 0 12px 32px rgba(44, 72, 112, 0.065);
+    }
+
+    .platform-banner {
+      height: 102px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      padding: 0 26px;
+      color: #20304f;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+      border: 1px solid rgba(210, 220, 236, 0.95);
+      box-shadow:
+        0 10px 24px rgba(44, 72, 112, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96);
+    }
+
+    .platform-banner::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(241, 245, 252, 0.95), transparent 28%),
+        radial-gradient(circle at 88% 14%, rgba(247, 250, 255, 0.9), transparent 24%);
+      pointer-events: none;
+    }
+
+    .platform-banner.pdd,
+    .platform-banner.jd,
+    .platform-banner.taobao {
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+      box-shadow:
+        0 10px 24px rgba(44, 72, 112, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96);
+    }
+
+    .banner-icon {
+      width: 78px;
+      height: 78px;
+      flex: 0 0 auto;
+      margin-right: 26px;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #f9fbff 0%, #f2f6fc 100%);
+      border: 1px solid rgba(214, 224, 238, 0.9);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 8px 18px rgba(44, 72, 112, 0.08);
+    }
+
+    .banner-icon svg {
+      width: 68px;
+      height: 68px;
+      filter: none;
+    }
+
+    .banner-title {
+      position: relative;
+      z-index: 1;
+      line-height: 1.15;
+      flex: 1;
+    }
+
+    .banner-title strong {
+      display: block;
+      font-size: 33px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: #22324f;
+    }
+
+    .banner-title span {
+      display: block;
+      margin-top: 9px;
+      font-size: 17px;
+      color: #4f617f;
+      font-weight: 600;
+    }
+
+    .banner-arrow {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+      border: 1px solid rgba(214, 224, 238, 0.95);
+      box-shadow: 0 10px 22px rgba(44, 72, 112, 0.08);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .banner-arrow:hover {
+      opacity: 0.85;
+      transform: scale(1.03);
+    }
+
+    .banner-arrow svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .banner-arrow svg path {
+      stroke: #6a7db0 !important;
+    }
+
+    .tool-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 13px;
+    }
+
+    .tool-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 13px;
+    }
+
+    /* 工具卡片 - 科技感深色风格（匹配综合工具包总表.html） */
+    .mini-card {
+      min-height: 122px;
+      padding: 0 9px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(var(--r), var(--g), var(--b), 0.15);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .mini-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at 50% 28%, rgba(var(--r), var(--g), var(--b), 0.18) 0%, transparent 60%);
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .mini-card::after {
+      content: none;
+    }
+
+    .card-pattern {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(var(--r), var(--g), var(--b), 0.12);
+      border: 1px solid rgba(var(--r), var(--g), var(--b), 0.25);
+      box-shadow:
+        0 0 0 4px rgba(var(--r), var(--g), var(--b), 0.06),
+        0 4px 12px rgba(var(--r), var(--g), var(--b), 0.2);
+      background-size: 44px 44px;
+      transition: all 0.3s;
+    }
+
+    .mini-card:hover .card-pattern {
+      box-shadow:
+        0 0 0 6px rgba(var(--r), var(--g), var(--b), 0.12),
+        0 8px 20px rgba(var(--r), var(--g), var(--b), 0.35);
+      transform: translateX(-50%) scale(1.08);
+    }
+
+    .mini-card:hover::after {
+      box-shadow:
+        0 0 0 6px rgba(var(--r), var(--g), var(--b), 0.12),
+        0 8px 20px rgba(var(--r), var(--g), var(--b), 0.35);
+      transform: translateX(-50%) scale(1.08);
+    }
+
+    .mini-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .mini-card.pdd {
+      --r: 239; --g: 68; --b: 68;
+    }
+    .mini-card.pdd:hover {
+      border-color: rgba(239, 68, 68, 0.6);
+      box-shadow:
+        0 0 20px rgba(239, 68, 68, 0.4),
+        0 0 40px rgba(239, 68, 68, 0.2),
+        0 8px 32px rgba(239, 68, 68, 0.3);
+    }
+
+    .mini-card.taobao {
+      --r: 245; --g: 158; --b: 11;
+    }
+    .mini-card.taobao:hover {
+      border-color: rgba(245, 158, 11, 0.6);
+      box-shadow:
+        0 0 20px rgba(245, 158, 11, 0.4),
+        0 0 40px rgba(245, 158, 11, 0.2),
+        0 8px 32px rgba(245, 158, 11, 0.3);
+    }
+
+    .mini-card.jd {
+      --r: 16; --g: 185; --b: 129;
+    }
+    .mini-card.jd:hover {
+      border-color: rgba(16, 185, 129, 0.6);
+      box-shadow:
+        0 0 20px rgba(16, 185, 129, 0.4),
+        0 0 40px rgba(16, 185, 129, 0.2),
+        0 8px 32px rgba(16, 185, 129, 0.3);
+    }
+
+    .mini-card .mini-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      color: rgba(255, 255, 255, 0.7);
+      position: relative;
+      z-index: 1;
+    }
+
+    .mini-card.pdd .mini-icon {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.06));
+      border-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .mini-card.taobao .mini-icon {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.06));
+      border-color: rgba(245, 158, 11, 0.15);
+    }
+
+    .mini-card.jd .mini-icon {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.06));
+      border-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .mini-icon svg * {
+      stroke: rgba(255, 255, 255, 0.65) !important;
+      fill: rgba(255, 255, 255, 0.65) !important;
+    }
+
+    .mini-card strong {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: 0.1px;
+      color: rgba(30, 41, 59, 0.9);
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-bottom: 4px;
+      font-family: "Source Han Sans", "Noto Sans CJK SC", "Alibaba PuHuiTi", "Microsoft YaHei", sans-serif;
+    }
+
+    .mini-card span {
+      display: block;
+      margin-top: 7px;
+      color: rgba(100, 116, 139, 0.8);
+      font-size: 12px;
+      font-weight: 400;
+      white-space: nowrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tiny-arrow {
+      position: absolute;
+      right: 10px;
+      bottom: 12px;
+      width: 18px;
+      height: 18px;
+      border-radius: 99px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .tiny-arrow svg path {
+      stroke: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    svg {
+      display: block;
+    }
+
+    /* ===== 平板适配 768px–1300px ===== */
+    @media (max-width: 1300px) {
+      .page {
+        padding-inline: 24px;
+      }
+
+      .topbar {
+        margin-inline: 0;
+        padding-inline: 34px;
+        border-radius: 24px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .platform-banner {
+        height: 92px;
+      }
+
+      .tool-row {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* ===== 手机适配 ≤768px ===== */
+    @media (max-width: 768px) {
+      .page {
+        padding-inline: 14px;
+        padding-bottom: 32px;
+      }
+
+      /* 顶栏 */
+      .topbar {
+        height: auto;
+        padding: 18px 20px;
+        border-radius: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .brand {
+        min-width: unset;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        width: 54px;
+        height: 54px;
+        border-radius: 18px;
+      }
+
+      .brand-mark svg {
+        width: 54px;
+        height: 54px;
+      }
+
+      .brand-title strong {
+        font-size: 24px;
+      }
+
+      .brand-title span {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      .divider {
+        display: none;
+      }
+
+      .slogan {
+        font-size: 14px;
+        width: 100%;
+      }
+
+      /* 面板 */
+      .layout {
+        padding-top: 18px;
+        gap: 14px;
+      }
+
+      .main-panel,
+      .right-panel {
+        border-radius: 20px;
+        padding: 20px 16px;
+      }
+
+      .section-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+      }
+
+      .title-bar {
+        width: 5px;
+        height: 26px;
+      }
+
+      /* 产品工具网格 */
+      .blank-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .blank-card {
+        height: 108px;
+        border-radius: 14px;
+      }
+
+      .blank-card[data-has-tool] .card-pattern {
+        width: 36px;
+        height: 36px;
+        top: 12px;
+        border-radius: 10px;
+      }
+
+      .blank-card[data-has-tool] .card-pattern svg {
+        width: 36px !important;
+        height: 36px !important;
+      }
+
+      .blank-card[data-has-tool] strong {
+        font-size: 13px;
+        padding-bottom: 10px;
+      }
+
+      /* 平台工具 */
+      .platform {
+        border-radius: 18px;
+        padding: 12px 12px;
+      }
+
+      .platform-banner {
+        height: 76px;
+        padding: 0 16px;
+        border-radius: 12px;
+      }
+
+      .banner-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
+        margin-right: 16px;
+      }
+
+      .banner-icon svg {
+        width: 54px;
+        height: 54px;
+      }
+
+      .banner-title strong {
+        font-size: 26px;
+      }
+
+      .banner-title span {
+        font-size: 13px;
+        margin-top: 5px;
+      }
+
+      .banner-arrow {
+        width: 40px;
+        height: 40px;
+        border-radius: 99px;
+      }
+
+      .banner-arrow svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      /* 工具卡片网格 */
+      .tool-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .mini-card {
+        min-height: 100px;
+        border-radius: 12px;
+        padding-bottom: 12px;
+      }
+
+      .mini-card .card-pattern {
+        width: 36px;
+        height: 36px;
+        top: 12px;
+        border-radius: 10px;
+      }
+
+      .mini-card .card-pattern svg {
+        width: 36px !important;
+        height: 36px !important;
+      }
+
+      .mini-card strong {
+        font-size: 14px;
+      }
+    }
+
+    /* ===== 小屏手机 ≤420px ===== */
+    @media (max-width: 420px) {
+      .tool-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .blank-grid {
+        gap: 10px;
+      }
+
+      .blank-card {
+        height: 100px;
+      }
+
+      .mini-card {
+        min-height: 94px;
+      }
+
+      .mini-card strong {
+        font-size: 13px;
+      }
+    }
+  </style>
+<style id="ios-system-skin">
+/* ===== 锦度工具箱 iOS 系统风格版 ===== */
+:root {
+  --ios-blue: #007aff;
+  --ios-blue-2: #5ac8fa;
+  --ios-indigo: #5856d6;
+  --ios-green: #34c759;
+  --ios-orange: #ff9500;
+  --ios-red: #ff3b30;
+  --ios-purple: #af52de;
+  --ios-text: #1c1c1e;
+  --ios-secondary: #6e6e73;
+  --ios-tertiary: #8e8e93;
+  --ios-separator: rgba(60, 60, 67, .14);
+  --ios-card: rgba(255, 255, 255, .74);
+  --ios-shadow: 0 18px 50px rgba(0, 48, 120, .10), 0 3px 12px rgba(0, 0, 0, .04);
+  --ios-shadow-soft: 0 10px 26px rgba(0, 40, 100, .08), 0 2px 8px rgba(0, 0, 0, .035);
+  --ios-radius-xl: 34px;
+  --ios-radius-lg: 26px;
+  --ios-radius-md: 20px;
+}
+
+html { background: #f2f6ff; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+body {
+  color: var(--ios-text);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(90, 200, 250, .24), transparent 30%),
+    radial-gradient(circle at 90% 10%, rgba(175, 82, 222, .14), transparent 26%),
+    radial-gradient(circle at 70% 88%, rgba(0, 122, 255, .13), transparent 30%),
+    linear-gradient(180deg, #fbfdff 0%, #f2f6ff 48%, #edf3fb 100%);
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+}
+
+body::before, body::after { content: ""; position: fixed; pointer-events: none; z-index: 0; }
+body::before {
+  left: 50%; top: 28px; width: min(1060px, calc(100vw - 28px)); height: 220px;
+  transform: translateX(-50%); border-radius: 0 0 56px 56px;
+  background:
+    linear-gradient(110deg, rgba(255,255,255,.86), rgba(255,255,255,.36)),
+    radial-gradient(circle at 22% 22%, rgba(0,122,255,.18), transparent 36%),
+    radial-gradient(circle at 80% 16%, rgba(52,199,89,.12), transparent 32%);
+  border: 1px solid rgba(255,255,255,.72); box-shadow: 0 30px 80px rgba(56, 105, 180, .10);
+}
+body::after {
+  width: 580px; height: 580px; right: -220px; bottom: -260px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,122,255,.13), rgba(90,200,250,.09) 34%, transparent 68%);
+  filter: blur(8px);
+}
+
+.page { position: relative; z-index: 1; max-width: 1740px; padding: 22px 42px 44px; }
+
+.topbar {
+  height: 94px; margin: 0; padding: 0 28px 0 24px; gap: 24px;
+  border-radius: var(--ios-radius-xl); background: rgba(255, 255, 255, .72);
+  border: 1px solid rgba(255, 255, 255, .86); box-shadow: var(--ios-shadow-soft);
+  -webkit-backdrop-filter: blur(28px) saturate(180%); backdrop-filter: blur(28px) saturate(180%);
+  position: sticky; top: 16px; z-index: 20;
+}
+.brand { min-width: 222px; gap: 14px; }
+.brand-mark {
+  width: 64px; height: 64px; border-radius: 20px; padding: 6px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.94), rgba(255,255,255,.54)),
+    radial-gradient(circle at 25% 18%, rgba(90,200,250,.34), transparent 36%),
+    radial-gradient(circle at 82% 80%, rgba(88,86,214,.22), transparent 38%);
+  border: 1px solid rgba(255, 255, 255, .9);
+  box-shadow: 0 16px 30px rgba(0, 122, 255, .13), inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 -10px 18px rgba(0, 122, 255, .05);
+}
+.brand-mark svg { filter: drop-shadow(0 8px 16px rgba(0,122,255,.12)); }
+.brand-title strong {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 28px; line-height: 1; font-weight: 760; letter-spacing: -.03em; color: var(--ios-text);
+}
+.brand-title span { margin-top: 7px; color: var(--ios-secondary); font-size: 13px; font-weight: 650; letter-spacing: .01em; }
+.divider { width: 1px; height: 38px; background: var(--ios-separator); }
+.slogan { color: var(--ios-secondary); font-size: 18px; font-weight: 650; letter-spacing: -.015em; }
+
+.layout { grid-template-columns: minmax(720px, 1fr) 560px; gap: 22px; padding-top: 26px; }
+.main-panel, .right-panel, .platform {
+  background: var(--ios-card); border: 1px solid rgba(255, 255, 255, .82); box-shadow: var(--ios-shadow);
+  -webkit-backdrop-filter: blur(30px) saturate(175%); backdrop-filter: blur(30px) saturate(175%);
+}
+.main-panel { min-height: 846px; border-radius: var(--ios-radius-xl); padding: 32px 32px 42px; position: relative; overflow: hidden; }
+.main-panel::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at 18% 0%, rgba(0,122,255,.09), transparent 30%), linear-gradient(180deg, rgba(255,255,255,.58), transparent 32%);
+  pointer-events: none;
+}
+.main-panel > * { position: relative; z-index: 1; }
+.section-title { gap: 12px; margin: 0 0 26px; font-size: 28px; font-weight: 780; letter-spacing: -.035em; color: var(--ios-text); }
+.title-bar { width: 5px; height: 29px; border-radius: 999px; background: linear-gradient(180deg, var(--ios-blue-2), var(--ios-blue)); box-shadow: 0 8px 18px rgba(0, 122, 255, .22); }
+
+.blank-grid { grid-template-columns: repeat(4, minmax(152px, 1fr)); gap: 18px; }
+.blank-card {
+  height: 120px; border-radius: 24px; background: rgba(255, 255, 255, .48);
+  border: 1px solid rgba(255, 255, 255, .76);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 10px 24px rgba(0, 34, 92, .055);
+  transition: transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s cubic-bezier(.2,.8,.2,1), background .24s;
+}
+.blank-card:not([data-has-tool]) {
+  background: linear-gradient(145deg, rgba(255,255,255,.28), rgba(255,255,255,.12)), repeating-linear-gradient(135deg, rgba(142,142,147,.08) 0 1px, transparent 1px 12px);
+  border-style: dashed; border-color: rgba(120,120,128,.18); box-shadow: inset 0 1px 0 rgba(255,255,255,.54);
+}
+.blank-card[data-has-tool] {
+  justify-content: center; padding: 18px 12px 16px; gap: 12px;
+  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(255,255,255,.58)), radial-gradient(circle at 50% 10%, rgba(0,122,255,.12), transparent 55%);
+  border-color: rgba(255,255,255,.9);
+}
+.blank-card:hover, .blank-card[data-has-tool]:hover {
+  transform: translateY(-5px) scale(1.015); background: rgba(255,255,255,.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 22px 44px rgba(0, 74, 173, .13);
+}
+.blank-card .card-pattern, .blank-card[data-has-tool] .card-pattern {
+  position: relative; top: auto; left: auto; transform: none; width: 48px; height: 48px; border-radius: 15px;
+  background: linear-gradient(145deg, rgba(0,122,255,.14), rgba(90,200,250,.08));
+  border: 1px solid rgba(0, 122, 255, .16); box-shadow: 0 10px 24px rgba(0, 122, 255, .12), inset 0 1px 0 rgba(255,255,255,.8);
+}
+.blank-card:hover .card-pattern, .blank-card[data-has-tool]:hover .card-pattern {
+  transform: translateY(-2px) scale(1.04); box-shadow: 0 14px 30px rgba(0, 122, 255, .18), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.blank-card strong { max-width: 96%; font-size: 15px; font-weight: 680; line-height: 1.25; letter-spacing: -.01em; color: var(--ios-text); }
+
+.right-panel { padding: 16px; gap: 16px; border-radius: var(--ios-radius-xl); background: linear-gradient(145deg, rgba(255,255,255,.74), rgba(255,255,255,.48)); }
+.platform { border-radius: 28px; padding: 14px; box-shadow: var(--ios-shadow-soft); overflow: hidden; position: relative; }
+.platform::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,.48), transparent 44%); }
+.platform > * { position: relative; z-index: 1; }
+.platform-banner {
+  height: 96px; padding: 0 20px; border-radius: 24px; background: rgba(255,255,255,.68) !important;
+  border: 1px solid rgba(255,255,255,.82); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 10px 24px rgba(0, 40, 100, .065);
+}
+.platform-banner::after { opacity: 1; background: linear-gradient(90deg, rgba(255,255,255,.38), transparent), radial-gradient(circle at 90% 10%, rgba(0,122,255,.08), transparent 35%); }
+.platform-banner.pdd { background: linear-gradient(135deg, rgba(255,255,255,.86), rgba(255,59,48,.065)) !important; }
+.platform-banner.taobao { background: linear-gradient(135deg, rgba(255,255,255,.86), rgba(255,149,0,.075)) !important; }
+.platform-banner.jd { background: linear-gradient(135deg, rgba(255,255,255,.86), rgba(52,199,89,.075)) !important; }
+.banner-icon {
+  width: 68px; height: 68px; margin-right: 18px; border-radius: 20px; background: rgba(255,255,255,.64);
+  border: 1px solid rgba(255,255,255,.84); box-shadow: 0 12px 24px rgba(0, 40, 100, .08), inset 0 1px 0 rgba(255,255,255,.92);
+}
+.banner-icon svg { width: 58px; height: 58px; }
+.banner-title strong { font-size: 29px; font-weight: 780; letter-spacing: -.04em; color: var(--ios-text); }
+.banner-title span { margin-top: 7px; font-size: 14px; color: var(--ios-secondary); font-weight: 560; letter-spacing: -.01em; }
+.banner-arrow { width: 42px; height: 42px; background: rgba(255,255,255,.74); border: 1px solid rgba(255,255,255,.86); box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 8px 18px rgba(0, 40, 100, .08); }
+.banner-arrow:hover { transform: scale(1.04); opacity: 1; background: #fff; }
+.banner-arrow svg { width: 21px; height: 21px; }
+.banner-arrow svg path { stroke: var(--ios-blue) !important; stroke-width: 3 !important; }
+
+.tool-row { gap: 10px; margin-top: 12px; }
+.mini-card {
+  min-height: 112px; padding: 14px 8px 13px; justify-content: center; gap: 10px; border-radius: 22px;
+  background: rgba(255,255,255,.55); -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255,255,255,.82); box-shadow: 0 8px 20px rgba(0, 40, 100, .06), inset 0 1px 0 rgba(255,255,255,.84);
+  transition: transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s, background .24s;
+}
+.mini-card::before { opacity: .95; background: radial-gradient(circle at 50% 18%, rgba(var(--r), var(--g), var(--b), .12), transparent 62%); }
+.mini-card:hover, .mini-card.pdd:hover, .mini-card.taobao:hover, .mini-card.jd:hover {
+  transform: translateY(-5px) scale(1.018); background: rgba(255,255,255,.82); border-color: rgba(255,255,255,.94);
+  box-shadow: 0 18px 36px rgba(var(--r), var(--g), var(--b), .14), 0 8px 18px rgba(0, 40, 100, .07), inset 0 1px 0 rgba(255,255,255,.95);
+}
+.mini-card .card-pattern {
+  position: relative; top: auto; left: auto; transform: none; width: 44px; height: 44px; border-radius: 14px;
+  background: linear-gradient(145deg, rgba(var(--r), var(--g), var(--b), .15), rgba(var(--r), var(--g), var(--b), .06));
+  border: 1px solid rgba(var(--r), var(--g), var(--b), .16); box-shadow: 0 10px 20px rgba(var(--r), var(--g), var(--b), .12), inset 0 1px 0 rgba(255,255,255,.8);
+}
+.mini-card:hover .card-pattern { transform: translateY(-2px) scale(1.04); box-shadow: 0 14px 28px rgba(var(--r), var(--g), var(--b), .18), inset 0 1px 0 rgba(255,255,255,.9); }
+.mini-card strong { margin: 0; font-size: 14px; font-weight: 660; line-height: 1.25; letter-spacing: -.015em; color: var(--ios-text); }
+.mini-card span, .tiny-arrow, .mini-card .mini-icon { display: none; }
+.mini-card[aria-disabled="true"] { background: rgba(255,255,255,.36); border-color: rgba(255,255,255,.64); box-shadow: inset 0 1px 0 rgba(255,255,255,.72), 0 6px 14px rgba(0, 40, 100, .035); }
+.mini-card[aria-disabled="true"] strong { color: var(--ios-tertiary); }
+.mini-card[aria-disabled="true"] .card-pattern { opacity: .46; filter: grayscale(.18); }
+svg { shape-rendering: geometricPrecision; }
+
+@media (max-width: 1300px) {
+  .page { padding-inline: 24px; }
+  .topbar { top: 12px; padding-inline: 22px; }
+  .layout { grid-template-columns: 1fr; }
+  .right-panel { display: grid; grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  body::before { top: 12px; height: 180px; border-radius: 0 0 36px 36px; }
+  .page { padding: 14px 12px 30px; }
+  .topbar { top: 8px; padding: 16px; border-radius: 26px; gap: 12px; }
+  .topbar::after { padding: 7px 10px; font-size: 12px; }
+  .brand-mark { width: 54px; height: 54px; border-radius: 17px; }
+  .brand-title strong { font-size: 23px; }
+  .brand-title span { font-size: 12px; }
+  .slogan { font-size: 14px; }
+  .layout { padding-top: 16px; gap: 14px; }
+  .main-panel, .right-panel { border-radius: 26px; padding: 18px 14px; }
+  .section-title { font-size: 22px; margin-bottom: 18px; }
+  .blank-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .blank-card { height: 104px; border-radius: 20px; }
+  .blank-card .card-pattern, .blank-card[data-has-tool] .card-pattern { width: 40px; height: 40px; border-radius: 13px; }
+  .blank-card strong { font-size: 13px; }
+  .platform { border-radius: 22px; padding: 10px; }
+  .platform-banner { height: 78px; border-radius: 20px; padding: 0 14px; }
+  .banner-icon { width: 52px; height: 52px; border-radius: 16px; margin-right: 12px; }
+  .banner-icon svg { width: 46px; height: 46px; }
+  .banner-title strong { font-size: 22px; }
+  .banner-title span { font-size: 12px; margin-top: 4px; }
+  .banner-arrow { width: 34px; height: 34px; }
+  .tool-row { grid-template-columns: repeat(2, 1fr); gap: 9px; }
+  .mini-card { min-height: 92px; border-radius: 18px; }
+  .mini-card .card-pattern { width: 36px; height: 36px; border-radius: 12px; }
+  .mini-card strong { font-size: 13px; }
+}
+@media (max-width: 420px) {
+  .topbar::after { display: none; }
+  .brand { min-width: auto; }
+  .blank-card { height: 98px; }
+  .mini-card { min-height: 88px; }
+}
+</style>
+
+<style id="tool-router-style">
+  /* ===== 本地子页面路由：使用 iframe 隔离每个工具的样式与脚本 ===== */
+  [data-tool-src] { cursor: pointer; }
+  [data-tool-src]:focus-visible {
+    outline: 3px solid rgba(0,122,255,.35);
+    outline-offset: 4px;
+  }
+  body.tool-viewer-open { overflow: hidden; }
+  .tool-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    flex-direction: column;
+    background:
+      radial-gradient(circle at 18% 10%, rgba(90,200,250,.18), transparent 30%),
+      linear-gradient(180deg, #f8fbff 0%, #edf3fb 100%);
+  }
+  .tool-viewer.show { display: flex; }
+  .tool-viewer-bar {
+    height: 76px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 18px;
+    background: rgba(255,255,255,.82);
+    border-bottom: 1px solid rgba(60,60,67,.12);
+    box-shadow: 0 12px 32px rgba(0,40,100,.08);
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
+    backdrop-filter: blur(24px) saturate(170%);
+  }
+  .tool-viewer-back,
+  .tool-viewer-open-new {
+    border: 1px solid rgba(60,60,67,.13);
+    background: rgba(255,255,255,.86);
+    color: #1c1c1e;
+    border-radius: 16px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(0,40,100,.06), inset 0 1px 0 rgba(255,255,255,.86);
+  }
+  .tool-viewer-back:hover,
+  .tool-viewer-open-new:hover { transform: translateY(-1px); }
+  .tool-viewer-title {
+    flex: 1;
+    min-width: 0;
+    font-size: 20px;
+    font-weight: 760;
+    color: #1c1c1e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tool-frame {
+    flex: 1;
+    width: 100%;
+    border: 0;
+    background: #fff;
+  }
+  @media (max-width: 768px) {
+    .tool-viewer-bar { height: auto; min-height: 68px; padding: 10px; }
+    .tool-viewer-title { font-size: 17px; }
+    .tool-viewer-open-new { display: none; }
+  }
+</style>
+
+
+<style id="responsive-enhancement-v4">
+
+/* ===== 手机 / 平板端口增强适配 v4 ===== */
+html { min-width: 0 !important; }
+body { min-width: 0 !important; -webkit-text-size-adjust: 100%; }
+[data-tool-src] { -webkit-tap-highlight-color: rgba(0,122,255,.12); }
+
+@media (min-width: 769px) and (max-width: 1180px) {
+  .page { max-width: 1180px; padding: 18px 22px 34px !important; }
+  .topbar { height: 88px !important; padding: 0 22px !important; gap: 18px !important; }
+  .brand { min-width: 210px !important; }
+  .brand-mark { width: 58px !important; height: 58px !important; border-radius: 19px !important; }
+  .brand-title strong { font-size: 25px !important; }
+  .brand-title span { font-size: 12px !important; }
+  .slogan { font-size: 16px !important; }
+  .layout { grid-template-columns: 1fr !important; gap: 18px !important; padding-top: 22px !important; }
+  .main-panel { min-height: auto !important; padding: 28px 24px 34px !important; }
+  .right-panel { padding: 16px !important; }
+  .blank-grid { grid-template-columns: repeat(3, minmax(160px, 1fr)) !important; gap: 18px !important; }
+  .blank-card { height: 120px !important; }
+  .tool-row { grid-template-columns: repeat(4, minmax(120px, 1fr)) !important; }
+  .platform-banner { height: 92px !important; }
+  .tool-viewer-bar { height: 70px !important; padding: 10px 16px !important; }
+}
+
+@media (max-width: 768px) {
+  .page { padding: 12px 10px 22px !important; }
+  .topbar { position: sticky !important; top: 8px !important; min-height: 74px !important; height: auto !important; padding: 12px !important; border-radius: 22px !important; align-items: center !important; gap: 10px !important; }
+  .brand { min-width: 0 !important; flex: 1 1 auto !important; }
+  .brand-mark { width: 46px !important; height: 46px !important; border-radius: 15px !important; flex: 0 0 auto !important; }
+  .brand-title strong { font-size: 21px !important; }
+  .brand-title span { font-size: 11px !important; margin-top: 4px !important; }
+  .divider, .slogan { display: none !important; }
+  .layout { display: block !important; padding-top: 14px !important; }
+  .main-panel, .right-panel { padding: 16px 12px !important; border-radius: 22px !important; min-height: auto !important; margin-bottom: 14px !important; }
+  .section-title { font-size: 20px !important; margin-bottom: 14px !important; gap: 10px !important; }
+  .title-bar { width: 5px !important; height: 24px !important; }
+  .blank-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 10px !important; }
+  .blank-card { height: 96px !important; border-radius: 18px !important; padding-bottom: 10px !important; }
+  .blank-card .card-pattern, .blank-card[data-has-tool] .card-pattern { width: 34px !important; height: 34px !important; border-radius: 11px !important; top: 12px !important; }
+  .blank-card strong { font-size: 12px !important; line-height: 1.2 !important; padding: 0 4px !important; }
+  .platform { padding: 10px !important; border-radius: 18px !important; margin-bottom: 12px !important; }
+  .platform-banner { height: 68px !important; padding: 0 12px !important; border-radius: 16px !important; }
+  .banner-icon { width: 46px !important; height: 46px !important; border-radius: 14px !important; margin-right: 10px !important; }
+  .banner-icon svg { width: 40px !important; height: 40px !important; }
+  .banner-title strong { font-size: 20px !important; }
+  .banner-title span { font-size: 11px !important; margin-top: 3px !important; }
+  .banner-arrow { width: 32px !important; height: 32px !important; }
+  .tool-row { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 9px !important; }
+  .mini-card { min-height: 82px !important; border-radius: 16px !important; padding: 10px 8px !important; justify-content: center !important; }
+  .mini-card .card-pattern { width: 32px !important; height: 32px !important; border-radius: 10px !important; margin-bottom: 8px !important; }
+  .mini-card strong { font-size: 12px !important; line-height: 1.2 !important; }
+  .tool-viewer-bar { min-height: 58px !important; height: auto !important; padding: 8px 10px !important; gap: 8px !important; }
+  .tool-viewer-back { padding: 8px 10px !important; border-radius: 12px !important; font-size: 13px !important; white-space: nowrap !important; }
+  .tool-viewer-title { font-size: 15px !important; }
+  .tool-frame { height: calc(100dvh - 58px) !important; }
+}
+
+@media (max-width: 430px) {
+  .topbar { border-radius: 20px !important; }
+  .brand-title strong { font-size: 19px !important; }
+  .brand-title span { display: none !important; }
+  .blank-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 8px !important; }
+  .blank-card { height: 88px !important; }
+  .blank-card .card-pattern, .blank-card[data-has-tool] .card-pattern { width: 30px !important; height: 30px !important; }
+  .platform-banner { height: 62px !important; }
+  .banner-title strong { font-size: 18px !important; }
+  .banner-title span { display: none !important; }
+  .tool-row { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .mini-card { min-height: 76px !important; }
+}
+
+</style>
 </head>
 <body>
-    <h1>我的工具箱</h1>
-    <p>欢迎使用在线工具</p>
-    <a class="btn" href="pingduoduoshuju.html">拼多多周报工具</a>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 72 72" role="img" aria-label="锦度JD融合品牌Logo">
+            <defs>
+              <linearGradient id="jd-blue" x1="18" x2="36" y1="56" y2="14" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#2797FF"/>
+                <stop offset="1" stop-color="#48C1FF"/>
+              </linearGradient>
+              <linearGradient id="jd-purple" x1="34" x2="58" y1="58" y2="16" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6A42FF"/>
+                <stop offset="1" stop-color="#B25BFF"/>
+              </linearGradient>
+              <filter id="jd-logo-glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <rect x="5.5" y="5.5" width="61" height="61" rx="21" fill="rgba(255,255,255,0.78)" stroke="rgba(117,136,221,0.20)" stroke-width="1.2"/>
+            <path d="M25 17v24.5c0 9.8 5 15.5 14.2 15.5 7.2 0 11.8-3.8 14-9.8"
+                  fill="none" stroke="url(#jd-blue)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" filter="url(#jd-logo-glow)"/>
+            <path d="M38 17v39"
+                  fill="none" stroke="url(#jd-purple)" stroke-width="7" stroke-linecap="round" filter="url(#jd-logo-glow)"/>
+            <path d="M38 17h6.8c10.5 0 17.2 7.1 17.2 19.5 0 12.7-6.9 20.5-18 20.5H38"
+                  fill="none" stroke="url(#jd-purple)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" filter="url(#jd-logo-glow)"/>
+            <circle cx="54.8" cy="15.8" r="4.2" fill="#FFCF3F"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <strong>锦度</strong>
+          <span>综合工具箱</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="slogan">让电商经营变得更高效</div>
+    </header>
+
+    <section class="layout">
+      <section class="main-panel">
+        <h1 class="section-title"><span class="title-bar"></span>产品工具</h1>
+          <div class="blank-grid" aria-label="产品工具占位框">
+          <div class="blank-card" data-has-tool data-tool-src="./pages/jst_code_reference.html" data-tool-title="聚水潭编码资料" title="打开聚水潭编码资料"><div class="card-pattern" data-tool="product"></div><strong>聚水潭编码资料</strong></div>
+          <div class="blank-card"></div><div class="blank-card"></div><div class="blank-card"></div>
+          <div class="blank-card" data-has-tool data-tool-src="./pages/malicious_return_dedup.html" data-tool-title="恶意退换货查重" title="打开恶意退换货查重"><div class="card-pattern" data-tool="product"></div><strong>恶意退换货查重</strong></div>
+          <div class="blank-card" data-has-tool data-tool-src="./pages/dedup_2_0.html" data-tool-title="查重2.0" title="打开查重2.0"><div class="card-pattern" data-tool="product"></div><strong>查重2.0</strong></div>
+          <div class="blank-card"></div><div class="blank-card"></div>
+          <div class="blank-card"></div><div class="blank-card"></div><div class="blank-card"></div><div class="blank-card"></div>
+          <div class="blank-card"></div><div class="blank-card"></div><div class="blank-card"></div><div class="blank-card"></div>
+          <div class="blank-card"></div><div class="blank-card"></div><div class="blank-card"></div><div class="blank-card"></div>
+        </div>
+      </section>
+
+      <aside class="right-panel" aria-label="平台工具">
+        <section class="platform">
+          <div class="platform-banner pdd" data-tool-src="./pages/pdd_profit.html" data-tool-title="拼多多单品利润表" title="打开拼多多单品利润表">
+            <div class="banner-icon" aria-hidden="true">
+              <svg viewBox="0 0 100 100" aria-label="拼多多工具Logo">
+                <defs>
+                  <linearGradient id="pdd-red-bg" x1="20" x2="80" y1="82" y2="18" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#e63636"/>
+                    <stop offset="1" stop-color="#ff5757"/>
+                  </linearGradient>
+                  <filter id="pdd-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#d83a3a" flood-opacity="0.35"/>
+                  </filter>
+                </defs>
+                <rect x="10" y="10" width="80" height="80" rx="24" fill="url(#pdd-red-bg)" filter="url(#pdd-shadow)"/>
+                <path d="M10 36c0-14.4 8.2-26 22.6-26h34.8C81.8 10 90 21.6 90 36v28c0 14.4-8.2 26-22.6 26H32.6C18.2 90 10 78.4 10 64z" fill="rgba(255,255,255,0.06)"/>
+                <text x="50" y="61" text-anchor="middle" font-size="32" fill="#ffffff" font-weight="800" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif">拼</text>
+              </svg>
+            </div>
+            <div class="banner-title">
+              <strong>拼多多工具</strong>
+              <span>多店铺数据管理与分析</span>
+            </div>
+            <div class="banner-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="#ff2230" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div class="mini-card pdd" data-tool-src="./pages/pdd_profit.html" data-tool-title="拼多多单品利润表" title="打开拼多多单品利润表">
+              <div class="card-pattern"></div>
+              <strong>单品利润表</strong>
+            </div>
+            <div class="mini-card pdd">
+              <div class="card-pattern"></div>
+              <strong>敬请期待</strong>
+            </div>
+            <div class="mini-card pdd">
+              <div class="card-pattern"></div>
+              <strong>敬请期待</strong>
+            </div>
+            <div class="mini-card pdd">
+              <div class="card-pattern"></div>
+              <strong>敬请期待</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="platform">
+          <div class="platform-banner taobao" data-tool-src="./pages/taobao_weekly.html" data-tool-title="淘宝周报统计" title="打开淘宝周报统计">
+            <div class="banner-icon" aria-hidden="true">
+              <svg viewBox="0 0 100 100" aria-label="淘宝工具Logo">
+                <defs>
+                  <linearGradient id="tao-orange-bg" x1="20" x2="80" y1="82" y2="18" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#ea8a00"/>
+                    <stop offset="1" stop-color="#f7a611"/>
+                  </linearGradient>
+                  <filter id="tao-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#e48d10" flood-opacity="0.35"/>
+                  </filter>
+                </defs>
+                <rect x="10" y="10" width="80" height="80" rx="24" fill="url(#tao-orange-bg)" filter="url(#tao-shadow)"/>
+                <path d="M10 36c0-14.4 8.2-26 22.6-26h34.8C81.8 10 90 21.6 90 36v28c0 14.4-8.2 26-22.6 26H32.6C18.2 90 10 78.4 10 64z" fill="rgba(255,255,255,0.06)"/>
+                <text x="50" y="61" text-anchor="middle" font-size="32" fill="#ffffff" font-weight="800" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif">淘</text>
+              </svg>
+            </div>
+            <div class="banner-title">
+              <strong>淘宝工具</strong>
+              <span>店铺运营优化利器</span>
+            </div>
+            <div class="banner-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="#ff8410" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div class="mini-card taobao" data-tool-src="./pages/taobao_weekly.html" data-tool-title="淘宝周报统计" title="打开淘宝周报统计">
+              <div class="card-pattern"></div>
+              <strong>周报统计</strong>
+            </div>
+            <div class="mini-card taobao">
+              <div class="card-pattern"></div>
+              <strong>敬请期待</strong>
+            </div>
+            <div class="mini-card taobao">
+              <div class="card-pattern"></div>
+              <strong>敬请期待</strong>
+            </div>
+            <div class="mini-card taobao">
+              <div class="card-pattern"></div>
+              <strong>敬请期待</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="platform">
+          <div class="platform-banner jd" data-tool-src="./pages/jd_weekly.html" data-tool-title="京东周报统计" title="打开京东周报统计">
+            <div class="banner-icon" aria-hidden="true">
+              <svg viewBox="0 0 100 100" aria-label="京东工具Logo">
+                <defs>
+                  <linearGradient id="jd-green-bg" x1="20" x2="80" y1="82" y2="18" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0cae73"/>
+                    <stop offset="1" stop-color="#17c58a"/>
+                  </linearGradient>
+                  <filter id="jd-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#18b67f" flood-opacity="0.35"/>
+                  </filter>
+                </defs>
+                <rect x="10" y="10" width="80" height="80" rx="24" fill="url(#jd-green-bg)" filter="url(#jd-shadow)"/>
+                <path d="M10 36c0-14.4 8.2-26 22.6-26h34.8C81.8 10 90 21.6 90 36v28c0 14.4-8.2 26-22.6 26H32.6C18.2 90 10 78.4 10 64z" fill="rgba(255,255,255,0.06)"/>
+                <text x="50" y="61" text-anchor="middle" font-size="32" fill="#ffffff" font-weight="800" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif">京</text>
+              </svg>
+            </div>
+            <div class="banner-title">
+              <strong>京东工具</strong>
+              <span>京东店铺运营工具箱</span>
+            </div>
+            <div class="banner-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="#ff2230" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="tool-row">
+            <div class="mini-card jd" data-tool-src="./pages/jd_weekly.html" data-tool-title="京东周报统计" title="打开京东周报统计">
+              <div class="card-pattern"></div>
+              <strong>周报统计</strong>
+            </div>
+            <div class="mini-card jd">
+              <div class="card-pattern"></div>
+              <strong>敬请期待</strong>
+            </div>
+            <div class="mini-card jd">
+              <div class="card-pattern"></div>
+              <strong>敬请期待</strong>
+            </div>
+            <div class="mini-card jd">
+              <div class="card-pattern"></div>
+              <strong>敬请期待</strong>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+  <script>
+    // 平台卡片颜色（99,102,241 = 靛蓝，产品工具色）
+    const PRODUCT_R = 99, PRODUCT_G = 102, PRODUCT_B = 241;
+    function rgb(r, g, b) { return `${r},${g},${b}`; }
+
+    function isTable(name) {
+      return name.includes('表') || name.includes('报表') || name.includes('利润表') || name.includes('清单') || name.includes('账单');
+    }
+
+    function isReport(name) {
+      return name.includes('周报') || name.includes('日报') || name.includes('月报') || name.includes('统计') || name.includes('分析');
+    }
+
+    function svg(name, svgContent) {
+      return `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;border-radius:10px;overflow:hidden;">${svgContent}</svg>`;
+    }
+
+    function c(r, g, b, a) { return `rgba(${r},${g},${b},${a})`; }
+
+    // 聚水潭编码资料 → 数据库/编码风格
+    function drawProductCode(pattern) {
+      const { r, g, b } = { r: PRODUCT_R, g: PRODUCT_G, b: PRODUCT_B };
+      pattern.innerHTML = svg('', `
+        <rect width="44" height="44" fill="transparent"/>
+        <!-- 数据库图标：顶部椭圆 + 圆柱 -->
+        <ellipse cx="22" cy="12" rx="14" ry="5" fill="none" stroke="${c(r,g,b,0.8)}" stroke-width="2"/>
+        <line x1="8" y1="12" x2="8" y2="32" stroke="${c(r,g,b,0.8)}" stroke-width="2"/>
+        <line x1="36" y1="12" x2="36" y2="32" stroke="${c(r,g,b,0.8)}" stroke-width="2"/>
+        <ellipse cx="22" cy="32" rx="14" ry="5" fill="none" stroke="${c(r,g,b,0.8)}" stroke-width="2"/>
+        <!-- 中间线条（数据层） -->
+        <path d="M8 22 Q22 26 36 22" fill="none" stroke="${c(r,g,b,0.5)}" stroke-width="1.5"/>
+        <!-- 编码横线 -->
+        <line x1="14" y1="20" x2="30" y2="20" stroke="${c(r,g,b,0.6)}" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="14" y1="25" x2="30" y2="25" stroke="${c(r,g,b,0.6)}" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- 顶部填充 -->
+        <path d="M8 12 Q22 8 36 12" fill="${c(r,g,b,0.2)}"/>
+      `);
+    }
+
+    // 恶意退货查重 / 查重2.0 → 放大镜/查重风格
+    function drawProductCheck(pattern) {
+      const { r, g, b } = { r: PRODUCT_R, g: PRODUCT_G, b: PRODUCT_B };
+      pattern.innerHTML = svg('', `
+        <rect width="44" height="44" fill="transparent"/>
+        <!-- 放大镜圆形 -->
+        <circle cx="19" cy="19" r="11" fill="none" stroke="${c(r,g,b,0.8)}" stroke-width="2.5"/>
+        <!-- 放大镜手柄 -->
+        <line x1="27" y1="27" x2="36" y2="36" stroke="${c(r,g,b,0.8)}" stroke-width="3" stroke-linecap="round"/>
+        <!-- 镜内数据对比线 -->
+        <line x1="13" y1="15" x2="25" y2="15" stroke="${c(r,g,b,0.5)}" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="13" y1="19" x2="22" y2="19" stroke="${c(r,g,b,0.5)}" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="13" y1="23" x2="20" y2="23" stroke="${c(r,g,b,0.5)}" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- 感叹号（警告） -->
+        <circle cx="33" cy="12" r="5" fill="${c(r,g,b,0.7)}"/>
+        <line x1="33" y1="9" x2="33" y2="13" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="33" cy="15.5" r="1" fill="white"/>
+      `);
+    }
+
+    // 通用表格
+    function drawTable(pattern, r, g, b) {
+      pattern.innerHTML = svg('', `
+        <rect width="44" height="44" fill="transparent"/>
+        <line x1="6" y1="14" x2="38" y2="14" stroke="${c(r,g,b,0.7)}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="6" y1="22" x2="38" y2="22" stroke="${c(r,g,b,0.7)}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="6" y1="30" x2="38" y2="30" stroke="${c(r,g,b,0.7)}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="6" y1="38" x2="38" y2="38" stroke="${c(r,g,b,0.7)}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="14" y1="6" x2="14" y2="38" stroke="${c(r,g,b,0.7)}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="24" y1="6" x2="24" y2="38" stroke="${c(r,g,b,0.7)}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="34" y1="6" x2="34" y2="38" stroke="${c(r,g,b,0.7)}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="6" y1="14" x2="38" y2="14" stroke="${c(r,g,b,1)}" stroke-width="2.5"/>
+      `);
+    }
+
+    // 通用报告
+    function drawReport(pattern, r, g, b) {
+      pattern.innerHTML = svg('', `
+        <rect width="44" height="44" fill="transparent"/>
+        <rect x="6" y="6" width="32" height="32" rx="4" fill="none" stroke="${c(r,g,b,0.7)}" stroke-width="2"/>
+        <circle cx="14" cy="6" r="3" fill="${c(r,g,b,0.8)}"/>
+        <circle cx="30" cy="6" r="3" fill="${c(r,g,b,0.8)}"/>
+        <line x1="10" y1="16" x2="34" y2="16" stroke="${c(r,g,b,0.6)}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="10" y1="22" x2="28" y2="22" stroke="${c(r,g,b,0.6)}" stroke-width="2" stroke-linecap="round"/>
+        <line x1="10" y1="28" x2="31" y2="28" stroke="${c(r,g,b,0.6)}" stroke-width="2" stroke-linecap="round"/>
+        <rect x="26" y="28" width="10" height="8" rx="2" fill="${c(r,g,b,0.5)}"/>
+        <path d="M6 10 Q6 6 10 6 H34 Q38 6 38 10 V14 H6 Z" fill="${c(r,g,b,0.25)}"/>
+      `);
+    }
+
+    function drawDots(name, pattern, r, g, b) {
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) {
+        hash = ((hash << 5) - hash) + name.charCodeAt(i);
+        hash |= 0;
+      }
+      const dots = [];
+      const count = 3 + (Math.abs(hash) % 3);
+      for (let i = 0; i < count; i++) {
+        const h = (hash * (i + 1) * 31) | 0;
+        const x = 6 + (Math.abs(h) % 32);
+        const y = 6 + (Math.abs((h * 17) | 0) % 32);
+        const rad = 2 + (Math.abs((h * 7) | 0) % 3);
+        const op = 0.3 + (Math.abs((h * 13) | 0) % 40) / 100;
+        dots.push(`radial-gradient(circle at ${x}px ${y}px, ${c(r,g,b,op)} ${rad}px, transparent ${rad}px)`);
+      }
+      pattern.style.backgroundImage = dots.join(',');
+    }
+
+    // 产品工具卡片（blank-card）
+    document.querySelectorAll('.blank-card[data-has-tool] .card-pattern').forEach(pattern => {
+      const card = pattern.closest('.blank-card');
+      const name = card.querySelector('strong')?.textContent || '';
+      if (name.includes('编码') || name.includes('聚水潭')) {
+        drawProductCode(pattern);
+      } else if (name.includes('查重')) {
+        drawProductCheck(pattern);
+      } else if (isTable(name)) {
+        drawTable(pattern, PRODUCT_R, PRODUCT_G, PRODUCT_B);
+      } else if (isReport(name)) {
+        drawReport(pattern, PRODUCT_R, PRODUCT_G, PRODUCT_B);
+      } else {
+        drawDots(name, pattern, PRODUCT_R, PRODUCT_G, PRODUCT_B);
+      }
+    });
+
+    // 平台 mini-card
+    document.querySelectorAll('.mini-card').forEach(card => {
+      const name = card.querySelector('strong')?.textContent || '';
+      const pattern = card.querySelector('.card-pattern');
+      if (!pattern) return;
+      if (isTable(name)) {
+        drawTable(pattern, 239, 68, 68); // 默认红
+      } else if (isReport(name)) {
+        drawReport(pattern, 245, 158, 11); // 默认橙
+      } else {
+        const colors = {
+          pdd: [239, 68, 68],
+          taobao: [245, 158, 11],
+          jd: [16, 185, 129]
+        };
+        const c = colors.pdd;
+        drawDots(name, pattern, ...c);
+      }
+    });
+  </script>
+<script id="ios-system-behavior">
+(function () {
+  const colorOf = card => card.classList.contains('jd') ? [52, 199, 89]
+    : card.classList.contains('taobao') ? [255, 149, 0]
+    : [255, 59, 48];
+
+  document.querySelectorAll('.mini-card').forEach(card => {
+    const name = card.querySelector('strong')?.textContent?.trim() || '';
+    const pattern = card.querySelector('.card-pattern');
+    const colors = colorOf(card);
+
+    if (name.includes('敬请期待')) {
+      card.setAttribute('aria-disabled', 'true');
+      card.setAttribute('title', '功能建设中');
+    }
+
+    if (!pattern) return;
+    if (typeof isTable === 'function' && typeof drawTable === 'function' && isTable(name)) {
+      drawTable(pattern, ...colors);
+    } else if (typeof isReport === 'function' && typeof drawReport === 'function' && isReport(name)) {
+      drawReport(pattern, ...colors);
+    } else if (typeof drawDots === 'function') {
+      drawDots(name, pattern, ...colors);
+    }
+  });
+})();
+</script>
+
+<div id="toolViewer" class="tool-viewer" aria-hidden="true">
+  <div class="tool-viewer-bar">
+    <button type="button" class="tool-viewer-back" id="toolViewerBack">← 返回工具箱</button>
+    <div class="tool-viewer-title" id="toolViewerTitle">工具页面</div>
+    <button type="button" class="tool-viewer-open-new" id="toolViewerOpenNew">新窗口打开</button>
+  </div>
+  <iframe
+    id="toolFrame"
+    class="tool-frame"
+    title="工具页面"
+    src="about:blank"
+    sandbox="allow-same-origin allow-scripts allow-forms allow-downloads allow-modals allow-popups"
+  ></iframe>
+</div>
+<script id="tool-router-script">
+(function () {
+  const viewer = document.getElementById('toolViewer');
+  const frame = document.getElementById('toolFrame');
+  const titleEl = document.getElementById('toolViewerTitle');
+  const backBtn = document.getElementById('toolViewerBack');
+  const openNewBtn = document.getElementById('toolViewerOpenNew');
+  let currentSrc = '';
+
+  function openTool(src, title) {
+    if (!src) return;
+    currentSrc = src;
+    titleEl.textContent = title || '工具页面';
+    frame.setAttribute('title', title || '工具页面');
+    frame.src = src; // 相对路径，例如 ./pages/jst_code_reference.html
+    viewer.classList.add('show');
+    viewer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('tool-viewer-open');
+  }
+
+  function closeTool() {
+    viewer.classList.remove('show');
+    viewer.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('tool-viewer-open');
+    frame.src = 'about:blank';
+    currentSrc = '';
+  }
+
+  document.querySelectorAll('[data-tool-src]').forEach(el => {
+    el.setAttribute('tabindex', '0');
+    el.addEventListener('click', ev => {
+      if (el.getAttribute('aria-disabled') === 'true') return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      openTool(el.getAttribute('data-tool-src'), el.getAttribute('data-tool-title'));
+    });
+    el.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        el.click();
+      }
+    });
+  });
+
+  backBtn.addEventListener('click', closeTool);
+  openNewBtn.addEventListener('click', () => {
+    if (currentSrc) window.open(currentSrc, '_blank', 'noopener,noreferrer');
+  });
+  window.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape' && viewer.classList.contains('show')) closeTool();
+  });
+})();
+</script>
+
 </body>
 </html>

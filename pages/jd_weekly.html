@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>京东周报数据 - 流量分析</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    padding: 20px;
+    min-width: 1400px;
+  }
+  .page-header {
+    background: linear-gradient(135deg, #e31024 0%, #c1000f 100%);
+    color: #fff;
+    padding: 18px 28px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px rgba(227,16,36,0.25);
+  }
+  .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+  .week-input {
+    background: rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.5);
+    color: #fff;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 14px;
+    outline: none;
+    width: 220px;
+  }
+  .week-input::placeholder { color: rgba(255,255,255,.7); }
+
+  .section { margin-bottom: 24px; }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #c1000f;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    border-left: 4px solid #e31024;
+    line-height: 1.4;
+  }
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    overflow: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid #e8eaed;
+    padding: 6px 8px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .th-group {
+    background: #fce4e7;
+    color: #c1000f;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .th-sub {
+    background: #fff5f6;
+    color: #555;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  td.label, th.label {
+    text-align: left;
+    font-weight: 600;
+    background: #fafafa;
+    color: #333;
+    min-width: 90px;
+  }
+  tr.cat-row td {
+    background: #fff0f1;
+    font-weight: 700;
+    color: #c1000f;
+  }
+  tr.sub-cat-row td {
+    background: #fffaf0;
+    font-weight: 700;
+    color: #d4700a;
+  }
+  .pos { color: #e31024; font-weight: 600; }
+  .neg { color: #27ae60; font-weight: 600; }
+  .zero { color: #999; }
+
+  input.di {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    text-align: center;
+    font-size: 13px;
+    color: #333;
+    font-family: inherit;
+    padding: 0;
+    min-width: 60px;
+  }
+  input.di:focus { background: #fffbe6; border-radius: 3px; }
+  input.di.left { text-align: left; }
+
+  .daily-table th.th-date { background: #fce4e7; color: #c1000f; font-weight: 700; }
+  .daily-table th.th-main { background: #fce4e7; color: #c1000f; font-weight: 700; }
+  .daily-table th.th-sub2 { background: #fff5f6; color: #555; font-weight: 600; font-size: 12px; }
+  .daily-table tr.total-row td { background: #fce4e7; font-weight: 700; color: #c1000f; }
+  .daily-table tr.avg-row td { background: #fff5f6; font-weight: 600; color: #555; }
+
+  /* 销售数据表 */
+  .sales-table th { background: #fce4e7; color: #c1000f; font-weight: 700; }
+  .sales-table td.row-label { background: #fafafa; font-weight: 700; text-align: left; padding-left: 10px; }
+  .sales-table tr:last-child td { background: #fff0f1; font-weight: 700; color: #e31024; }
+
+  /* 推广数据表 */
+  .promo-table th { background: #e8f0fe; color: #1a56db; font-weight: 700; }
+  .promo-table td.row-label { background: #fafafa; font-weight: 700; text-align: left; padding-left: 10px; }
+  .promo-table tr.total-row td { background: #e8f0fe; font-weight: 700; color: #1a56db; }
+
+  .tip { font-size: 12px; color: #999; margin-top: 8px; padding-left: 4px; }
+  .section-row { display: flex; gap: 20px; }
+  .section-row .section { flex: 1; }
+
+  /* 数据源导入卡片 */
+  .import-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 2px dashed #e0e0e0;
+    padding: 12px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .import-card:hover { border-color: #e31024; box-shadow: 0 4px 14px rgba(227,16,36,.12); }
+  .import-card:hover .import-icon { transform: scale(1.15); }
+  .import-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #555;
+    text-align: center;
+  }
+  .import-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 0;
+    user-select: none;
+  }
+  .import-icon { font-size: 28px; transition: transform .2s; }
+  .import-text { font-size: 13px; color: #666; font-weight: 500; }
+  .import-hint { font-size: 11px; color: #aaa; }
+  .import-status { font-size: 11px; color: #999; text-align: center; min-height: 14px; }
+
+  .import-card.has-file {
+    border-color: #e31024;
+    background: #fff5f6;
+  }
+  .import-card.has-file .import-status { color: #e31024; font-weight: 600; }
+
+  @media print {
+    body { background: #fff; padding: 10px; min-width: 0; }
+    .card { box-shadow: none; }
+  }
+</style>
+
+<style id="responsive-enhancement-v4">
+
+/* ===== 手机 / 平板端口增强适配 v4 ===== */
+html, body { min-width: 0 !important; max-width: 100% !important; }
+body { overflow-x: hidden !important; -webkit-text-size-adjust: 100%; }
+.card { max-width: 100% !important; -webkit-overflow-scrolling: touch; }
+
+@media (min-width: 769px) and (max-width: 1180px) {
+  body { padding: 16px !important; }
+  body > div:first-of-type { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 12px !important; }
+  .page-header { padding: 16px 20px !important; }
+  .page-header h1 { font-size: 20px !important; }
+  .section-row { flex-direction: column !important; gap: 14px !important; }
+  table { min-width: 900px !important; }
+}
+
+@media (max-width: 768px) {
+  body { padding: 10px !important; }
+  body > div:first-of-type { grid-template-columns: 1fr !important; gap: 10px !important; margin-bottom: 14px !important; }
+  .import-card { border-radius: 14px !important; padding: 10px !important; }
+  .import-title { font-size: 12px !important; }
+  .import-body { padding: 8px 0 !important; }
+  .page-header { display: block !important; padding: 14px 16px !important; border-radius: 16px !important; margin-bottom: 16px !important; }
+  .page-header h1 { font-size: 18px !important; margin-bottom: 10px !important; }
+  .week-input { width: 100% !important; height: 36px !important; margin-top: 6px !important; }
+  .section { margin-bottom: 18px !important; }
+  .section-title { font-size: 14px !important; margin-bottom: 8px !important; }
+  .section-row { display: block !important; }
+  .card { border-radius: 14px !important; overflow-x: auto !important; }
+  table { min-width: 820px !important; font-size: 12px !important; }
+  th, td { padding: 6px 7px !important; font-size: 12px !important; }
+  input.di { font-size: 12px !important; min-width: 54px !important; }
+  .tip { font-size: 11px !important; }
+}
+
+@media (max-width: 430px) {
+  body { padding: 8px !important; }
+  .page-header h1 { font-size: 16px !important; }
+  table { min-width: 760px !important; }
+  th, td { padding: 5px 6px !important; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- 顶部数据导入区 -->
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px;">
+  <div class="import-card" data-slot="1">
+    <div class="import-title">📊 数据源 ① · 流量数据总览</div>
+    <div class="import-body" onclick="this.parentElement.querySelector('input').click()">
+      <div class="import-icon">📁</div>
+      <div class="import-text">点击上传数据文件</div>
+      <div class="import-hint">支持 Excel / CSV</div>
+    </div>
+    <input type="file" class="file-input" accept=".xlsx,.xls,.csv" hidden>
+    <div class="import-status"></div>
+  </div>
+  <div class="import-card has-file" data-slot="2">
+    <div class="import-title">📊 数据源 ② · 站内免费流量明细</div>
+    <div class="import-body" onclick="this.parentElement.querySelector('input').click()">
+      <div class="import-icon">📁</div>
+      <div class="import-text">点击上传数据文件</div>
+      <div class="import-hint">支持 Excel / CSV</div>
+    </div>
+    <input type="file" class="file-input" accept=".xlsx,.xls,.csv" hidden>
+    <div class="import-status"></div>
+  </div>
+  <div class="import-card" data-slot="3">
+    <div class="import-title">📊 数据源 ③ · 推广数据</div>
+    <div class="import-body" onclick="this.parentElement.querySelector('input').click()">
+      <div class="import-icon">📁</div>
+      <div class="import-text">点击上传数据文件</div>
+      <div class="import-hint">支持 Excel / CSV</div>
+    </div>
+    <input type="file" class="file-input" accept=".xlsx,.xls,.csv" hidden>
+    <div class="import-status"></div>
+  </div>
+  <div class="import-card" data-slot="4">
+    <div class="import-title">📊 数据源 ④ · 每日数据</div>
+    <div class="import-body" onclick="this.parentElement.querySelector('input').click()">
+      <div class="import-icon">📁</div>
+      <div class="import-text">点击上传数据文件</div>
+      <div class="import-hint">支持 Excel / CSV</div>
+    </div>
+    <input type="file" class="file-input" accept=".xlsx,.xls,.csv" hidden>
+    <div class="import-status"></div>
+  </div>
+</div>
+
+<!-- 顶部标题 -->
+<div class="page-header">
+  <h1>📊 京东周报 · 流量数据环比分析</h1>
+  <div>
+    <span style="font-size:14px;opacity:.85;">统计周期：</span>
+    <input class="week-input" id="weekRange" type="text" placeholder="例：2026-04-07 ~ 2026-04-13" />
+  </div>
+</div>
+
+<!-- ======== 一、流量数据总览（站内流量 + 站内付费流量） ======== -->
+<div class="section">
+  <div class="section-title">一、流量数据总览</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th class="th-group label" rowspan="2">流量来源</th>
+          <th class="th-group" colspan="3">本周数据</th>
+          <th class="th-group" colspan="3">上周数据</th>
+          <th class="th-group" colspan="3">变幅（环比）</th>
+        </tr>
+        <tr>
+          <th class="th-sub">UV</th><th class="th-sub">成交金额</th><th class="th-sub">转化率</th>
+          <th class="th-sub">UV</th><th class="th-sub">成交金额</th><th class="th-sub">转化率</th>
+          <th class="th-sub">UV</th><th class="th-sub">成交金额</th><th class="th-sub">转化率</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-overview">
+        <tr class="cat-row" data-row="站内流量">
+          <td class="label">站内流量</td>
+          <td><input class="di" data-k="站内流量_本周UV" placeholder="—"></td>
+          <td><input class="di" data-k="站内流量_本周成交" placeholder="—"></td>
+          <td><input class="di" data-k="站内流量_本周转化" placeholder="—"></td>
+          <td><input class="di" data-k="站内流量_上周UV" placeholder="—"></td>
+          <td><input class="di" data-k="站内流量_上周成交" placeholder="—"></td>
+          <td><input class="di" data-k="站内流量_上周转化" placeholder="—"></td>
+          <td class="dc" data-a="站内流量_本周UV" data-b="站内流量_上周UV">—</td>
+          <td class="dc" data-a="站内流量_本周成交" data-b="站内流量_上周成交">—</td>
+          <td class="dc" data-a="站内流量_本周转化" data-b="站内流量_上周转化">—</td>
+        </tr>
+        <tr class="cat-row" data-row="站内付费流量">
+          <td class="label">站内付费流量</td>
+          <td><input class="di" data-k="站内付费流量_本周UV" placeholder="—"></td>
+          <td><input class="di" data-k="站内付费流量_本周成交" placeholder="—"></td>
+          <td><input class="di" data-k="站内付费流量_本周转化" placeholder="—"></td>
+          <td><input class="di" data-k="站内付费流量_上周UV" placeholder="—"></td>
+          <td><input class="di" data-k="站内付费流量_上周成交" placeholder="—"></td>
+          <td><input class="di" data-k="站内付费流量_上周转化" placeholder="—"></td>
+          <td class="dc" data-a="站内付费流量_本周UV" data-b="站内付费流量_上周UV">—</td>
+          <td class="dc" data-a="站内付费流量_本周成交" data-b="站内付费流量_上周成交">—</td>
+          <td class="dc" data-a="站内付费流量_本周转化" data-b="站内付费流量_上周转化">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="tip">※ 环比变幅自动计算；红色=上涨，绿色=下降</p>
+</div>
+
+<!-- ======== 二、站内免费流量明细 ======== -->
+<div class="section">
+  <div class="section-title">二、站内免费流量明细</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th class="th-group label" rowspan="2">流量来源</th>
+          <th class="th-group" colspan="3">本周数据</th>
+          <th class="th-group" colspan="3">上周数据</th>
+          <th class="th-group" colspan="3">变幅（环比）</th>
+        </tr>
+        <tr>
+          <th class="th-sub">UV</th><th class="th-sub">成交金额</th><th class="th-sub">转化率</th>
+          <th class="th-sub">UV</th><th class="th-sub">成交金额</th><th class="th-sub">转化率</th>
+          <th class="th-sub">UV</th><th class="th-sub">成交金额</th><th class="th-sub">转化率</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-free"></tbody>
+    </table>
+  </div>
+  <p class="tip">※ 环比变幅自动计算；红色=上涨，绿色=下降</p>
+</div>
+
+<!-- ======== 三、推广数据 ======== -->
+<div class="section">
+  <div class="section-title">三、推广数据</div>
+  <div class="card">
+    <table class="promo-table">
+      <thead>
+        <tr>
+          <th class="label">名称</th>
+          <th>展现量</th>
+          <th>点击量</th>
+          <th>点击率</th>
+          <th>花费</th>
+          <th>推广花费占比</th>
+          <th>平均点击单价</th>
+          <th>累计成交额</th>
+          <th>总购物车数</th>
+          <th>加购成本</th>
+          <th>实际ROI</th>
+          <th>费率</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-promo"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======== 四、锦度POP旗舰店销售数据 ======== -->
+<div class="section">
+  <div class="section-title">四、锦度POP旗舰店销售数据</div>
+  <div class="card">
+    <table class="sales-table">
+      <thead>
+        <tr>
+          <th class="label">时间</th>
+          <th>销售额</th>
+          <th>访客数</th>
+          <th>UV价值</th>
+          <th>转化率</th>
+          <th>支付件数</th>
+          <th>支付买家数</th>
+          <th>本周目标</th>
+          <th>本周差异</th>
+          <th>本周完成率</th>
+          <th>3月目标</th>
+          <th>3月达成</th>
+          <th>3月完成进度</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-sales"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======== 五、每日数据 ======== -->
+<div class="section">
+  <div class="section-title">五、每日数据（本周 vs 上周同期）</div>
+  <div class="card">
+    <table class="daily-table">
+      <thead>
+        <tr>
+          <th class="th-date" rowspan="2">日期</th>
+          <th class="th-date" rowspan="2">周</th>
+          <th class="th-date" rowspan="2">备注</th>
+          <th class="th-main" colspan="3">销售额</th>
+          <th class="th-main" colspan="3">访客数</th>
+          <th class="th-main" colspan="3">转化率</th>
+          <th class="th-main" colspan="3">支付件数</th>
+          <th class="th-main" colspan="3">支付买家数</th>
+        </tr>
+        <tr>
+          <th class="th-sub2">销售额</th><th class="th-sub2">上周同期</th><th class="th-sub2">环比</th>
+          <th class="th-sub2">访客数</th><th class="th-sub2">上周同期</th><th class="th-sub2">环比增长</th>
+          <th class="th-sub2">转化率</th><th class="th-sub2">上周同期</th><th class="th-sub2">环比增长</th>
+          <th class="th-sub2">件数</th><th class="th-sub2">上周同期</th><th class="th-sub2">环比增长</th>
+          <th class="th-sub2">买家数</th><th class="th-sub2">上周同期</th><th class="th-sub2">环比增长</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-daily"></tbody>
+    </table>
+  </div>
+  <p class="tip">※ 环比 = (本期 - 上周同期) / 上周同期 × 100%；红色=增长，绿色=下降</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+// ============ 数据源上传交互 ============
+document.querySelectorAll('.import-card input[type="file"]').forEach(inp => {
+  inp.addEventListener('change', async function() {
+    const card = this.closest('.import-card');
+    const status = card.querySelector('.import-status');
+    const slot = parseInt(card.dataset.slot);
+
+    if (this.files.length > 0) {
+      const fn = this.files[0].name;
+      card.classList.add('has-file');
+      status.textContent = '⏳ 解析中…';
+
+      try {
+        const data = await parseFile(this.files[0]);
+        if (slot === 2) {
+          fillFreeTraffic(data);
+          status.textContent = '✓ 已填入 ' + data.length + ' 条记录';
+        } else if (slot === 3) {
+          const cnt = fillPromoData(data);
+          status.textContent = '✓ 已匹配 ' + cnt + ' 条推广数据';
+        } else if (slot === 4) {
+          const cnt = fillDailyData(data);
+          status.textContent = '✓ 已匹配 ' + cnt + ' 天数据';
+        } else {
+          status.textContent = '✓ ' + fn + '（已上传，待匹配）';
+        }
+      } catch(e) {
+        status.textContent = '✗ 解析失败：' + e.message;
+        console.error(e);
+      }
+    } else {
+      card.classList.remove('has-file');
+      status.textContent = '';
+    }
+  });
+});
+
+// ============ 文件解析（Excel / CSV） ============
+async function parseFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        let wb;
+        if (ext === 'csv') {
+          wb = XLSX.read(e.target.result, { type: 'string', cellDates: true });
+        } else {
+          wb = XLSX.read(e.target.result, { type: 'array' });
+        }
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        resolve(raw);
+      } catch(err) {
+        reject(err);
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// ============ 站内免费流量明细 -> 填充表格 ============
+// 列映射（0-indexed）：
+//   C列 → 数据来源名称 = 2
+//   D列 → 本周UV = 3
+//   E列 → 上周UV = 4
+//   S列 → 本周成交金额 = 18
+//   T列 → 上周成交金额 = 19
+//   AB列 → 本周转化率 = 27
+//   AC列 → 上周转化率 = 28
+function fillFreeTraffic(raw) {
+  if (raw.length < 3) return;
+
+  const COL = {
+    channel:     2,
+    uv:          3,   // 本周UV (D列)
+    uvLW:        4,   // 上周UV (E列)
+    convRate:    27,  // 本周转化率 (AB列)
+    convRateLW:  28,  // 上周转化率 (AC列)
+    salesAmt:    18,  // 本周成交金额 (S列)
+    salesAmtLW:  19,  // 上周成交金额 (T列)
+  };
+
+  const nameMap = {
+    '搜索':        ['搜索'],
+    '商品':        ['商品'],
+    '下单与支付':   ['下单与支付'],
+    '其他':        ['其他'],
+    '我的':        ['我的'],
+    '购物车':      ['购物车'],
+    '推荐':        ['推荐'],
+    '店铺':        ['店铺'],
+    '站内功能':     ['站内功能'],
+    '直接流量':     ['直接流量'],
+    '内容':        ['内容'],
+    '频道':        ['频道'],
+    '活动':        ['活动'],
+    '首页':        ['首页'],
+  };
+
+  const parsed = {};
+
+  for (let i = 1; i < raw.length; i++) {
+    const row = raw[i];
+    if (!row || row.length < 29) continue;
+    const name = String(row[COL.channel] || '').trim();
+    if (!name || name === '-' || name === '二级渠道') continue;
+
+    for (const [key, keywords] of Object.entries(nameMap)) {
+      if (keywords.some(k => name.includes(k) || k.includes(name))) {
+        const rawUV = row[COL.uv];
+        const rawUVLW = row[COL.uvLW];
+        const rawConv = row[COL.convRate];
+        const rawConvLW = row[COL.convRateLW];
+        const rawSales = row[COL.salesAmt];
+        const rawSalesLW = row[COL.salesAmtLW];
+
+        parsed[key] = {
+          uv:        typeof rawUV === 'number' ? String(Math.round(rawUV)) : (rawUV || ''),
+          uvLW:      typeof rawUVLW === 'number' ? String(Math.round(rawUVLW)) : (rawUVLW || ''),
+          convRate:  typeof rawConv === 'number' ? (rawConv * 100).toFixed(2) + '%' : (rawConv || ''),
+          convRateLW:typeof rawConvLW === 'number' ? (rawConvLW * 100).toFixed(2) + '%' : (rawConvLW || ''),
+          salesAmt:  typeof rawSales === 'number' ? String(Math.round(rawSales)) : (rawSales || ''),
+          salesAmtLW:typeof rawSalesLW === 'number' ? String(Math.round(rawSalesLW)) : (rawSalesLW || ''),
+        };
+        break;
+      }
+    }
+  }
+
+  freeRows.forEach(r => {
+    if (r.isCat) return;
+    const d = parsed[r.name];
+    if (!d) return;
+
+    const set = (suffix, val) => {
+      const el = document.querySelector(`input[data-k="${r.name + '_' + suffix}"]`);
+      if (el) { el.value = val; el.dispatchEvent(new Event('input')); }
+    };
+    set('本周UV',    d.uv);
+    set('本周成交',  d.salesAmt);
+    set('本周转化',  d.convRate);
+    set('上周UV',    d.uvLW);
+    set('上周成交',  d.salesAmtLW);
+    set('上周转化',  d.convRateLW);
+  });
+}
+
+// ============ 数据源④每日数据填充 ============
+// 列映射（0-indexed）：
+//   日期       → A列  = 0
+//   销售额      → H列  = 7    上周同期 → I列  = 8
+//   转化率      → T列  = 19   上周同期 → U列  = 20
+//   支付件数    → K列  = 10   上周同期 → L列  = 11
+//   支付买家数  → Q列  = 16   上周同期 → R列  = 17
+//   访客数      → AX列 = 49   上周同期 → AY列 = 50
+const DAILY_COL = {
+  date:        0,
+  salesAmt:    7,   salesAmtLW:  8,
+  convRate:    19,  convRateLW:  20,
+  payQty:      10,  payQtyLW:    11,
+  payBuyer:    16,  payBuyerLW:  17,
+  uv:          49,  uvLW:        50,
+};
+
+// 将各种日期格式统一为 "YYYY-MM-DD"
+function normDate(v) {
+  if (!v) return '';
+  if (typeof v === 'number') {
+    const d = new Date(Math.round((v - 25569) * 86400 * 1000));
+    const y = d.getUTCFullYear(), m = d.getUTCMonth()+1, day = d.getUTCDate();
+    return `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  }
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (/^\d{4}\/\d{2}\/\d{2}$/.test(s)) return s.replace(/\//g,'-');
+  const m2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m2) return `${m2[3]}-${m2[1].padStart(2,'0')}-${m2[2].padStart(2,'0')}`;
+  if (/^\d{8}$/.test(s)) return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+  return s;
+}
+
+// 格式化数值
+function fmtNum(v, isPct) {
+  if (v === '' || v === null || v === undefined) return '';
+  if (typeof v === 'number') {
+    if (isPct) return (v * 100).toFixed(2) + '%';
+    return String(Math.round(v));
+  }
+  const s = String(v).trim();
+  if (isPct && !s.includes('%')) {
+    const n = parseFloat(s);
+    if (!isNaN(n)) return (n * 100).toFixed(2) + '%';
+  }
+  return s;
+}
+
+function fillDailyData(raw) {
+  if (!raw || raw.length < 2) return 0;
+
+  const dateMap = {};
+  for (let i = 1; i < raw.length; i++) {
+    const row = raw[i];
+    if (!row || row.length < 2) continue;
+    const dateStr = normDate(row[DAILY_COL.date]);
+    if (!dateStr || dateStr.length < 8) continue;
+    dateMap[dateStr] = row;
+  }
+
+  let matched = 0;
+  const tbody = document.getElementById('tbody-daily');
+  if (!tbody) return 0;
+
+  const rows = tbody.querySelectorAll('tr:not(.total-row):not(.avg-row)');
+  rows.forEach(tr => {
+    const dateInput = tr.querySelector('input[data-k$="_日期"]');
+    if (!dateInput) return;
+
+    const dayKey = dateInput.dataset.k.replace('_日期','');
+    const dateVal = dateInput.value.trim();
+    if (!dateVal) return;
+
+    const normalizedDate = normDate(dateVal);
+    const srcRow = dateMap[normalizedDate];
+    if (!srcRow) return;
+
+    matched++;
+
+    const setField = (key, val) => {
+      const el = document.querySelector(`input[data-k="${key}"]`);
+      if (!el) return;
+      el.value = val;
+      D[key] = val;
+      el.dispatchEvent(new Event('input'));
+    };
+
+    setField(`${dayKey}_销售额_本期`,      fmtNum(srcRow[DAILY_COL.salesAmt],   false));
+    setField(`${dayKey}_销售额_上周同期`,  fmtNum(srcRow[DAILY_COL.salesAmtLW], false));
+    setField(`${dayKey}_访客数_本期`,      fmtNum(srcRow[DAILY_COL.uv],         false));
+    setField(`${dayKey}_访客数_上周同期`,  fmtNum(srcRow[DAILY_COL.uvLW],       false));
+    setField(`${dayKey}_转化率_本期`,      fmtNum(srcRow[DAILY_COL.convRate],    true));
+    setField(`${dayKey}_转化率_上周同期`,  fmtNum(srcRow[DAILY_COL.convRateLW],  true));
+    setField(`${dayKey}_支付件数_本期`,    fmtNum(srcRow[DAILY_COL.payQty],      false));
+    setField(`${dayKey}_支付件数_上周同期`,fmtNum(srcRow[DAILY_COL.payQtyLW],    false));
+    setField(`${dayKey}_支付买家数_本期`,  fmtNum(srcRow[DAILY_COL.payBuyer],    false));
+    setField(`${dayKey}_支付买家数_上周同期`,fmtNum(srcRow[DAILY_COL.payBuyerLW],false));
+  });
+
+  refreshDiffCells();
+  return matched;
+}
+
+// ============ 工具函数 ============
+const D = {};
+
+function calcDiff(a, b) {
+  const av = parseFloat(a), bv = parseFloat(b);
+  if (isNaN(av) || isNaN(bv) || bv === 0) return null;
+  return (av - bv) / bv;
+}
+
+function renderDiff(cell, diff) {
+  if (diff === null) { cell.textContent = '—'; cell.className = cell.className.replace(/\b(pos|neg|zero)\b/g,'').trim(); return; }
+  cell.textContent = (diff >= 0 ? '↑ ' : '↓ ') + Math.abs(diff * 100).toFixed(2) + '%';
+  cell.classList.remove('pos','neg','zero');
+  cell.classList.add(diff > 0 ? 'pos' : diff < 0 ? 'neg' : 'zero');
+}
+
+function inp(k, ph='—', cls='') {
+  return `<input class="di ${cls}" data-k="${k}" placeholder="${ph}">`;
+}
+
+// ============ 绑定输入 -> 联动环比 ============
+function bindAll() {
+  document.querySelectorAll('input.di[data-k]').forEach(el => {
+    el.addEventListener('input', function() {
+      D[this.dataset.k] = this.value;
+      refreshDiffCells();
+    });
+  });
+}
+
+function refreshDiffCells() {
+  document.querySelectorAll('td.dc[data-a][data-b]').forEach(cell => {
+    const diff = calcDiff(D[cell.dataset.a] || '', D[cell.dataset.b] || '');
+    renderDiff(cell, diff);
+  });
+  document.querySelectorAll('td.ddc[data-a][data-b]').forEach(cell => {
+    const diff = calcDiff(D[cell.dataset.a] || '', D[cell.dataset.b] || '');
+    renderDiff(cell, diff);
+  });
+}
+
+// ============ 二、站内免费流量 ============
+const freeRows = [
+  { name: '站内免费', isCat: true },
+  { name: '搜索' },
+  { name: '商品' },
+  { name: '下单与支付' },
+  { name: '我的' },
+  { name: '购物车' },
+  { name: '其他' },
+  { name: '店铺' },
+  { name: '推荐' },
+  { name: '站内功能' },
+  { name: '直接流量' },
+  { name: '内容' },
+  { name: '频道' },
+  { name: '活动' },
+  { name: '首页' },
+];
+
+function buildFreeRows() {
+  const tbody = document.getElementById('tbody-free');
+  freeRows.forEach(r => {
+    const k = r.name;
+    const tr = document.createElement('tr');
+    if (r.isCat) tr.className = 'sub-cat-row';
+    let h = `<td class="label">${r.name}</td>`;
+    if (r.isCat) {
+      h += `<td colspan="9"></td>`;
+    } else {
+      h += `<td>${inp(k+'_本周UV')}</td>`;
+      h += `<td>${inp(k+'_本周成交')}</td>`;
+      h += `<td>${inp(k+'_本周转化')}</td>`;
+      h += `<td>${inp(k+'_上周UV')}</td>`;
+      h += `<td>${inp(k+'_上周成交')}</td>`;
+      h += `<td>${inp(k+'_上周转化')}</td>`;
+      h += `<td class="dc" data-a="${k}_本周UV" data-b="${k}_上周UV">—</td>`;
+      h += `<td class="dc" data-a="${k}_本周成交" data-b="${k}_上周成交">—</td>`;
+      h += `<td class="dc" data-a="${k}_本周转化" data-b="${k}_上周转化">—</td>`;
+    }
+    tr.innerHTML = h;
+    tbody.appendChild(tr);
+  });
+}
+
+// ============ 三、推广数据 ============
+const promoRows = ['快车', '海投', '总计'];
+const promoCols = ['展现量','点击量','点击率','花费','推广花费占比','平均点击单价','累计成交额','总购物车数','加购成本','实际ROI','费率'];
+
+// 推广数据列映射配置（根据数据源3的表头自动匹配）
+// 数据源3表头第1行（索引0）与推广数据表格的列名匹配
+const PROMO_HEADER_MAP = {
+  '展现量': ['展现量', '曝光量', '展示量', '曝光次数'],
+  '点击量': ['点击量', '点击次数', '点击数'],
+  '点击率': ['点击率', 'CTR', '点击通过率'],
+  '花费': ['花费', '消耗', '费用', '总花费', '推广花费'],
+  '推广花费占比': ['推广花费占比', '花费占比', '消耗占比', '推广占比'],
+  '平均点击单价': ['平均点击单价', '点击单价', 'CPC', '平均CPC'],
+  '累计成交额': ['累计成交额', '成交额', '成交金额', 'GMV', '订单金额'],
+  '总购物车数': ['总购物车数', '购物车数', '加购数', '加购量', '购物车'],
+  '加购成本': ['加购成本', '购物车成本', '单次加购成本'],
+  '实际ROI': ['实际ROI', 'ROI', '投入产出比', '实际投入产出比'],
+  '费率': ['费率', '费比', '费用率', '推广费率']
+};
+
+// 名称匹配映射（数据源3第1列的值与promoRows的匹配）
+const PROMO_NAME_MAP = {
+  '快车': ['快车', '京东快车', '快车推广'],
+  '海投': ['海投', '京东海投', '海投推广', '购物触点'],
+  '总计': ['总计', '合计', '汇总', '总数据', '全部']
+};
+
+// 填充推广数据
+function fillPromoData(raw) {
+  if (!raw || raw.length < 2) return 0;
+
+  // 获取表头（第1行，索引0）
+  const headers = raw[0].map(h => String(h || '').trim());
+  
+  // 构建列索引映射
+  const colIndexMap = {};
+  promoCols.forEach(colName => {
+    const possibleNames = PROMO_HEADER_MAP[colName] || [colName];
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i];
+      if (possibleNames.some(name => header.includes(name) || name.includes(header))) {
+        colIndexMap[colName] = i;
+        break;
+      }
+    }
+    // 如果没找到，尝试直接匹配
+    if (colIndexMap[colName] === undefined) {
+      const idx = headers.indexOf(colName);
+      if (idx !== -1) colIndexMap[colName] = idx;
+    }
+  });
+
+  // 解析数据行（从第2行开始，索引1）
+  const parsed = {};
+  for (let i = 1; i < raw.length; i++) {
+    const row = raw[i];
+    if (!row || row.length < 2) continue;
+    
+    // 第1列是名称
+    const name = String(row[0] || '').trim();
+    if (!name) continue;
+    
+    // 匹配名称
+    let matchedKey = null;
+    for (const [key, keywords] of Object.entries(PROMO_NAME_MAP)) {
+      if (keywords.some(k => name.includes(k) || k.includes(name))) {
+        matchedKey = key;
+        break;
+      }
+    }
+    
+    if (!matchedKey) {
+      // 尝试直接匹配
+      if (promoRows.includes(name)) {
+        matchedKey = name;
+      }
+    }
+    
+    if (matchedKey) {
+      parsed[matchedKey] = {};
+      promoCols.forEach(colName => {
+        const idx = colIndexMap[colName];
+        if (idx !== undefined && idx < row.length) {
+          const val = row[idx];
+          parsed[matchedKey][colName] = formatPromoValue(val, colName);
+        }
+      });
+    }
+  }
+
+  // 填充到表格
+  let filledCount = 0;
+  promoRows.forEach(name => {
+    const d = parsed[name];
+    if (!d) return;
+    
+    filledCount++;
+    promoCols.forEach(colName => {
+      const val = d[colName];
+      if (val !== undefined) {
+        const el = document.querySelector(`input[data-k="${name}_${colName}"]`);
+        if (el) {
+          el.value = val;
+          el.dispatchEvent(new Event('input'));
+        }
+      }
+    });
+  });
+
+  return filledCount;
+}
+
+// 格式化推广数据值
+function formatPromoValue(val, colName) {
+  if (val === '' || val === null || val === undefined) return '';
+  
+  if (typeof val === 'number') {
+    // 百分比字段
+    if (['点击率', '推广花费占比', '费率'].includes(colName)) {
+      if (val < 1) return (val * 100).toFixed(2) + '%';  // 如果是小数，转为百分比
+      return val.toFixed(2) + '%';
+    }
+    // ROI字段
+    if (colName === '实际ROI') {
+      return val.toFixed(2);
+    }
+    // 金额字段
+    if (['花费', '平均点击单价', '累计成交额', '加购成本'].includes(colName)) {
+      return val.toFixed(2);
+    }
+    // 整数字段
+    return String(Math.round(val));
+  }
+  
+  return String(val);
+}
+
+function buildPromoRows() {
+  const tbody = document.getElementById('tbody-promo');
+  promoRows.forEach(name => {
+    const tr = document.createElement('tr');
+    if (name === '总计') tr.className = 'total-row';
+    let h = `<td class="row-label">${name}</td>`;
+    promoCols.forEach(c => {
+      h += `<td>${inp(name+'_'+c)}</td>`;
+    });
+    tr.innerHTML = h;
+    tbody.appendChild(tr);
+  });
+}
+
+// ============ 四、销售数据 ============
+const salesRows = ['本周', '上周', '环比'];
+const salesCols = ['销售额','访客数','UV价值','转化率','支付件数','支付买家数','本周目标','本周差异','本周完成率','3月目标','3月达成','3月完成进度'];
+
+function buildSalesRows() {
+  const tbody = document.getElementById('tbody-sales');
+  salesRows.forEach(name => {
+    const tr = document.createElement('tr');
+    let h = `<td class="row-label">${name}</td>`;
+    if (name === '环比') {
+      const autoCols = ['销售额','访客数','UV价值','转化率','支付件数','支付买家数'];
+      salesCols.forEach(c => {
+        if (autoCols.includes(c)) {
+          h += `<td class="ddc" data-a="本周_${c}" data-b="上周_${c}">—</td>`;
+        } else {
+          h += `<td>${inp('环比_'+c)}</td>`;
+        }
+      });
+    } else {
+      salesCols.forEach(c => {
+        h += `<td>${inp(name+'_'+c)}</td>`;
+      });
+    }
+    tr.innerHTML = h;
+    tbody.appendChild(tr);
+  });
+}
+
+// ============ 五、每日数据 ============
+const dailyDays = ['星期一','星期二','星期三','星期四','星期五','星期六','星期日'];
+const dailyGroups = ['销售额','访客数','转化率','支付件数','支付买家数'];
+
+function buildDailyRows() {
+  const tbody = document.getElementById('tbody-daily');
+  dailyDays.forEach(day => {
+    const tr = document.createElement('tr');
+    let h = `<td><input class="di left" data-k="${day}_日期" placeholder="${day}" style="font-weight:600;min-width:50px;"></td>`;
+    h += `<td>${inp(day+'_周','')}</td>`;
+    h += `<td>${inp(day+'_备注','日常')}</td>`;
+    dailyGroups.forEach(g => {
+      h += `<td>${inp(day+'_'+g+'_本期')}</td>`;
+      h += `<td>${inp(day+'_'+g+'_上周同期')}</td>`;
+      h += `<td class="ddc" data-a="${day}_${g}_本期" data-b="${day}_${g}_上周同期">—</td>`;
+    });
+    tr.innerHTML = h;
+    tbody.appendChild(tr);
+  });
+
+  // 总计行
+  const trT = document.createElement('tr');
+  trT.className = 'total-row';
+  let th = `<td colspan="3" style="text-align:left;padding-left:8px;">总计</td>`;
+  for (let i = 0; i < 15; i++) th += `<td>—</td>`;
+  trT.innerHTML = th;
+  tbody.appendChild(trT);
+
+  // 日均值行
+  const trA = document.createElement('tr');
+  trA.className = 'avg-row';
+  let ta = `<td colspan="3" style="text-align:left;padding-left:8px;">日均值</td>`;
+  for (let i = 0; i < 15; i++) ta += `<td>—</td>`;
+  trA.innerHTML = ta;
+  tbody.appendChild(trA);
+}
+
+// ============ 初始化 ============
+buildFreeRows();
+buildPromoRows();
+buildSalesRows();
+buildDailyRows();
+bindAll();
+
+// 周期默认值
+(function() {
+  const d = new Date();
+  const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay()+6)%7));
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const fmt = dt => `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  document.getElementById('weekRange').value = fmt(mon) + ' ~ ' + fmt(sun);
+})();
+</script>
+</body>
+</html>

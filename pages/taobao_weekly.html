@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>淘宝周报统计</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .main-container {
+            padding: 30px 40px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 180px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f5576c;
+        }
+
+        .stat-card .sub {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 5px;
+        }
+
+        .windows-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .data-window {
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .data-window:hover {
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .data-window.active {
+            border-color: #667eea;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .window-header {
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .window-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .window-title .icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .window-title h2 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .window-title span {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .window-badge {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .window-badge.has-data {
+            background: rgba(72, 199, 142, 0.2);
+            color: #48c78e;
+        }
+
+        .sub-module-badge {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .sub-module-badge.has-data {
+            background: rgba(72, 199, 142, 0.2);
+            color: #48c78e;
+        }
+
+        .window-body {
+            padding: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .upload-text strong {
+            color: #667eea;
+        }
+
+        .upload-hint {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 8px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.6);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .manual-input {
+            display: none;
+        }
+
+        .manual-input.show {
+            display: block;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .data-table th {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+        }
+
+        .data-table input {
+            width: 100%;
+            padding: 6px 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .data-table input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .add-row-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px dashed rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .add-row-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(72, 199, 142, 0.1);
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .file-info .file-icon {
+            font-size: 24px;
+        }
+
+        .file-info .file-details {
+            flex: 1;
+        }
+
+        .file-info .file-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .file-info .file-size {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .file-info .remove-btn {
+            background: rgba(245, 87, 108, 0.2);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            color: #f5576c;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .data-preview {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow: auto;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .data-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .data-preview th,
+        .data-preview td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            white-space: nowrap;
+        }
+
+        .data-preview th {
+            background: rgba(255,255,255,0.05);
+            position: sticky;
+            top: 0;
+        }
+
+        /* ===================== 商品数据分析汇总区域 ===================== */
+        .analysis-section {
+            margin-top: 30px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            overflow: hidden;
+        }
+
+        .analysis-header {
+            padding: 20px 25px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .analysis-header h2 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .analysis-header .subtitle {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            margin-left: 10px;
+        }
+
+        .analysis-toolbar {
+            display: flex;
+            gap: 10px;
+            padding: 15px 25px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toolbar-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #fff;
+        }
+
+        .analysis-table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-width: 100%;
+            max-height: 600px;
+        }
+
+        .analysis-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .analysis-table th,
+        .analysis-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            white-space: nowrap;
+        }
+
+        .analysis-table th {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* ===================== 固定列样式（两层表头专用） ===================== */
+
+        /* 第一行表头固定列 — rowspan=2，同时 sticky top 和 sticky left */
+        /* 主体ID */
+        .analysis-table thead tr:first-child th:nth-child(1) {
+            position: sticky;
+            left: 0;
+            top: 0;
+            background: #1a1a38;
+            z-index: 30;
+            min-width: 100px;
+        }
+        /* 核心货号 */
+        .analysis-table thead tr:first-child th:nth-child(2) {
+            position: sticky;
+            left: 100px;
+            top: 0;
+            background: #1a1a38;
+            z-index: 29;
+            min-width: 120px;
+        }
+        /* 图片 */
+        .analysis-table thead tr:first-child th:nth-child(3) {
+            position: sticky;
+            left: 220px;
+            top: 0;
+            background: #1a1a38;
+            z-index: 28;
+            min-width: 60px;
+        }
+        /* 负责人 */
+        .analysis-table thead tr:first-child th:nth-child(4) {
+            position: sticky;
+            left: 280px;
+            top: 0;
+            background: #1a1a38;
+            z-index: 27;
+            min-width: 80px;
+        }
+        /* 备注 */
+        .analysis-table thead tr:first-child th:nth-child(5) {
+            position: sticky;
+            left: 360px;
+            top: 0;
+            background: #1a1a38;
+            z-index: 26;
+            min-width: 100px;
+        }
+
+        /* tbody 数据行固定列 */
+        .analysis-table tbody tr td:nth-child(1) {
+            position: sticky; left: 0;      background: #1a1a38; z-index: 5; min-width: 100px;
+        }
+        .analysis-table tbody tr td:nth-child(2) {
+            position: sticky; left: 100px;  background: #1a1a38; z-index: 4; min-width: 120px;
+        }
+        .analysis-table tbody tr td:nth-child(3) {
+            position: sticky; left: 220px;  background: #1a1a38; z-index: 3; min-width: 60px;
+        }
+        .analysis-table tbody tr td:nth-child(4) {
+            position: sticky; left: 280px;  background: #1a1a38; z-index: 2; min-width: 80px;
+        }
+        .analysis-table tbody tr td:nth-child(5) {
+            position: sticky; left: 360px;  background: #1a1a38; z-index: 1; min-width: 100px;
+        }
+
+        /* 第二行表头的普通 th 也需要 sticky top，防止纵向滚动时消失 */
+        .analysis-table thead tr:last-child th {
+            position: sticky;
+            top: 0;
+            background: rgba(30, 30, 56, 0.97);
+            z-index: 10;
+        }
+
+        /* 图片列样式 */
+        .img-cell {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .img-cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .img-placeholder {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            color: rgba(255,255,255,0.3);
+            font-size: 20px;
+        }
+
+        /* 分析汇总表内的图片单元格 */
+        .analysis-table td:nth-child(3) .table-img {
+            height: 50px;
+            max-width: 80px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .analysis-table td:nth-child(3) .img-text {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        /* 数值单元格 */
+        .num-cell {
+            text-align: right;
+            font-family: 'Consolas', monospace;
+        }
+
+        /* 趋势颜色 */
+        .trend-up { color: #48c78e; }
+        .trend-down { color: #f5576c; }
+        .trend-neutral { color: rgba(255,255,255,0.5); }
+
+        /* 空状态 */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* 汇总面板 */
+        .summary-panel {
+            margin-top: 30px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 25px;
+        }
+
+        .summary-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 { font-size: 16px; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body { padding: 20px; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 25px;
+            background: rgba(72, 199, 142, 0.9);
+            color: #fff;
+            border-radius: 10px;
+            font-size: 14px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: rgba(245, 87, 108, 0.9); }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header { padding: 15px 20px; }
+            .main-container { padding: 20px; }
+            .windows-grid { grid-template-columns: 1fr; }
+            .stats-bar { flex-direction: column; }
+        }
+
+        /* 颜色 */
+        .icon-1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .icon-2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .icon-3 { background: linear-gradient(135deg, #48c78e, #38b2ac); }
+        .icon-4 { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+        .icon-5 { background: linear-gradient(135deg, #4299e1, #3182ce); }
+        .icon-6 { background: linear-gradient(135deg, #9f7aea, #805ad5); }
+        .icon-7 { background: linear-gradient(135deg, #fc8181, #f56565); }
+
+        /* 子模块切换样式 */
+        .sub-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .sub-tab-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: rgba(255,255,255,0.6);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sub-tab-btn.active {
+            background: linear-gradient(135deg, #fc8181, #f56565);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .sub-tab-btn:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .sub-module-content {
+            display: none;
+        }
+
+        .sub-module-content.show {
+            display: block;
+        }
+    </style>
+
+<style id="responsive-enhancement-v4">
+
+/* ===== 手机 / 平板端口增强适配 v4 ===== */
+html, body { min-width: 0 !important; max-width: 100% !important; overflow-x: hidden !important; }
+body { -webkit-text-size-adjust: 100%; }
+.analysis-table-wrapper, .data-preview { -webkit-overflow-scrolling: touch; }
+
+@media (min-width: 769px) and (max-width: 1180px) {
+  .header { padding: 16px 24px !important; flex-wrap: wrap !important; gap: 12px !important; }
+  .main-container { padding: 22px 24px !important; }
+  .stats-bar { gap: 12px !important; }
+  .stat-card { min-width: 160px !important; }
+  .windows-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .analysis-table { min-width: 1500px !important; }
+}
+
+@media (max-width: 768px) {
+  .header { padding: 14px 16px !important; display: block !important; }
+  .header h1 { font-size: 20px !important; margin-bottom: 12px !important; }
+  .header-actions { width: 100% !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .btn { padding: 9px 12px !important; font-size: 13px !important; }
+  .main-container { padding: 14px 12px 26px !important; }
+  .stats-bar { display: grid !important; grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 10px !important; margin-bottom: 16px !important; }
+  .stat-card { min-width: 0 !important; padding: 14px !important; border-radius: 14px !important; }
+  .stat-card .value { font-size: 22px !important; }
+  .windows-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .window-header { padding: 12px 14px !important; }
+  .window-title h2 { font-size: 14px !important; }
+  .window-body { padding: 14px !important; }
+  .sub-tabs { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 4px !important; }
+  .sub-tab-btn { flex: 0 0 auto !important; min-width: 108px !important; }
+  .upload-area { padding: 22px 12px !important; }
+  .analysis-section, .summary-panel { border-radius: 14px !important; margin-top: 16px !important; }
+  .analysis-header { display: block !important; padding: 14px !important; }
+  .analysis-header h2 { font-size: 16px !important; margin-bottom: 8px !important; }
+  .analysis-toolbar { padding: 12px 14px !important; }
+  .toolbar-btn { flex: 1 1 auto !important; }
+  .analysis-table-wrapper { max-height: 62vh !important; }
+  .analysis-table { min-width: 1300px !important; font-size: 11px !important; }
+  .analysis-table th, .analysis-table td { padding: 8px 9px !important; }
+  .modal-content { width: calc(100% - 24px) !important; }
+}
+
+@media (max-width: 430px) {
+  .stats-bar { grid-template-columns: 1fr !important; }
+  .header-actions { grid-template-columns: 1fr !important; }
+  .analysis-table { min-width: 1180px !important; }
+}
+
+</style>
+</head>
+<body>
+    <header class="header">
+        <h1>📊 淘宝周报统计</h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="exportAllData()">📥 导出数据</button>
+            <button class="btn btn-primary" onclick="generateSummary()">📊 生成汇总</button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- 全局统计栏 -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <h3>已导入模块</h3>
+                <div class="value" id="totalModules">0</div>
+                <div class="sub">共 12 个子模块</div>
+            </div>
+            <div class="stat-card">
+                <h3>总数据行数</h3>
+                <div class="value" id="totalRows">0</div>
+                <div class="sub">数据记录</div>
+            </div>
+            <div class="stat-card">
+                <h3>数据完整度</h3>
+                <div class="value" id="dataCompleteness">0%</div>
+                <div class="sub">模块覆盖率</div>
+            </div>
+            <div class="stat-card">
+                <h3>最近更新</h3>
+                <div class="value" id="lastUpdate">--</div>
+                <div class="sub">数据时间</div>
+            </div>
+        </div>
+
+        <!-- 7个数据导入窗口 -->
+        <div class="windows-grid" id="windowsGrid"></div>
+
+        <!-- ==================== 商品数据分析汇总 ==================== -->
+        <div class="analysis-section">
+            <div class="analysis-header">
+                <h2>📊 商品数据分析汇总</h2>
+                <span class="subtitle">GMV/费率规则已配置</span>
+            </div>
+
+            <div class="analysis-toolbar">
+                <button class="toolbar-btn" onclick="showToast('等待配置匹配规则')">🔧 配置匹配规则</button>
+                <button class="toolbar-btn" onclick="refreshAnalysis()">🔄 刷新数据</button>
+            </div>
+
+            <div class="analysis-table-wrapper">
+                <table class="analysis-table" id="analysisTable">
+                    <thead>
+                        <!-- 主表头行 -->
+                        <tr>
+                            <th rowspan="2">主体ID</th>
+                            <th rowspan="2">核心货号</th>
+                            <th rowspan="2">图片</th>
+                            <th rowspan="2">负责人</th>
+                            <th rowspan="2">备注</th>
+                            <th colspan="4" style="text-align:center;background:linear-gradient(135deg, #667eea, #764ba2);">💰 GMV</th>
+                            <th colspan="4" style="text-align:center;background:linear-gradient(135deg, #48c78e, #38b2ac);">📈 GMV费率</th>
+                            <th colspan="6" style="text-align:center;background:linear-gradient(135deg, #fc8181, #f56565);">🚗 直通车数据</th>
+                            <th rowspan="2">刷单</th>
+                            <th colspan="4" style="text-align:center;background:linear-gradient(135deg, #ed8936, #dd6b20);">💸 退款率</th>
+                        </tr>
+                        <!-- 子表头行 -->
+                        <tr style="font-size:11px;">
+                            <th>实际7天GMV</th>
+                            <th>近7天GMV</th>
+                            <th>上上周GMV</th>
+                            <th>环比</th>
+                            <th>GMV费率</th>
+                            <th>净GMV费率</th>
+                            <th>上上周费率</th>
+                            <th>费率环比</th>
+                            <th>推广总成交（周）</th>
+                            <th>推广总花费（周）</th>
+                            <th>投产（周）</th>
+                            <th>关键词花费</th>
+                            <th>人群花费</th>
+                            <th>15天总花费</th>
+                            <th>近7天退款金额</th>
+                            <th>近7天退款率</th>
+                            <th>上上周退款率</th>
+                            <th>退款率环比</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analysisBody">
+                        <tr>
+                            <td colspan="24">
+                                <div class="empty-state">
+                                    <div class="icon">📋</div>
+                                    <p>请先在"直通车数据 - 7天总数据"中导入商品报表 CSV</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 汇总报告 -->
+        <div class="summary-panel" id="summaryPanel" style="display:none;">
+            <div class="summary-title">📊 模块数据汇总报告</div>
+            <div id="summaryContent"></div>
+        </div>
+    </main>
+
+    <!-- 导出模态框 -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📥 导出数据</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:20px;color:rgba(255,255,255,0.8);">请选择导出格式：</p>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn btn-primary" onclick="exportAs('csv')">CSV</button>
+                    <button class="btn btn-secondary" onclick="exportAs('json')">JSON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // 7个数据模块配置
+        const dataModules = [
+            { id: 1, name: '生意参谋', sub: '店铺经营数据', icon: '📊', iconClass: 'icon-1', isParent: true, children: [
+                { id: '1a', name: '上周数据', columns: ['日期','访客数','下单金额','支付金额','转化率'] },
+                { id: '1b', name: '上上周数据', columns: ['日期','访客数','下单金额','支付金额','转化率'] },
+                { id: '1c', name: '30日销售数据', columns: ['日期','访客数','下单金额','支付金额','客单价'] }
+            ]},
+            { id: 2, name: '图片+商品ID', sub: '商品图片关联', icon: '🖼️', iconClass: 'icon-3', columns: ['商品ID','图片URL','负责人'] },
+            { id: 3, name: '补单数据', sub: '补单任务记录', icon: '📝', iconClass: 'icon-6', isParent: true, children: [
+                { id: '3a', name: '珠海数据', columns: ['日期','订单号','商品ID','SKU','金额','状态'] },
+                { id: '3b', name: '麻豆数据', columns: ['日期','订单号','商品ID','SKU','金额','状态'] },
+                { id: '3c', name: '尺八数据', columns: ['日期','订单号','商品ID','SKU','金额','状态'] },
+                { id: '3d', name: '微商数据', columns: ['日期','订单号','商品ID','SKU','金额','状态'] }
+            ]},
+            { id: 4, name: '直通车数据', sub: '推广投放数据', icon: '🚗', iconClass: 'icon-7', isParent: true, children: [
+                { id: '4a', name: '7天总数据', columns: ['日期','计划名称','花费','成交金额','ROI'] },
+                { id: '4b', name: '7天关键词', columns: ['关键词','花费','点击量','成交金额','ROI'] },
+                { id: '4c', name: '7天人群推广', columns: ['人群名称','花费','成交金额','订单数','ROI'] },
+                { id: '4d', name: '15天总数据', columns: ['日期','计划名称','花费','成交金额','ROI'] }
+            ]}
+        ];
+
+        const moduleData = {};
+        const moduleFiles = {};
+
+        function init() {
+            renderWindows();
+            updateGlobalStats();
+            fixStickyHeader();
+        }
+
+        // 动态修正双行表头的 sticky top 值
+        function fixStickyHeader() {
+            requestAnimationFrame(() => {
+                const table = document.getElementById('analysisTable');
+                if (!table) return;
+                const rows = table.querySelectorAll('thead tr');
+                if (rows.length < 2) return;
+                const firstRowHeight = rows[0].getBoundingClientRect().height || 40;
+                // 第一行已是 top:0，第二行 top = 第一行高度
+                rows[1].querySelectorAll('th').forEach(th => {
+                    th.style.top = firstRowHeight + 'px';
+                });
+            });
+        }
+
+        function renderWindows() {
+            const grid = document.getElementById('windowsGrid');
+            grid.innerHTML = dataModules.map(m => {
+                if (m.isParent) {
+                    // 带子模块的父模块
+                    return `
+                    <div class="data-window" id="window-${m.id}">
+                        <div class="window-header">
+                            <div class="window-title">
+                                <div class="icon ${m.iconClass}">${m.icon}</div>
+                                <div><h2>${m.name}</h2><span>${m.sub}</span></div>
+                            </div>
+                            <span class="window-badge" id="badge-${m.id}">待导入</span>
+                        </div>
+                        <div class="window-body">
+                            <div class="sub-tabs" id="sub-tabs-${m.id}">
+                                ${m.children.map((child, idx) => `
+                                    <button class="sub-tab-btn ${idx === 0 ? 'active' : ''}" onclick="switchSubModule(${m.id},'${child.id}')">${child.name}</button>
+                                `).join('')}
+                            </div>
+                            ${m.children.map((child, idx) => `
+                                <div class="sub-module-content ${idx === 0 ? 'show' : ''}" id="sub-content-${child.id}">
+                                    <div class="sub-module-header">
+                                        <span class="sub-module-badge" id="badge-${child.id}">待导入</span>
+                                    </div>
+                                    <div class="upload-area" onclick="document.getElementById('file-input-${child.id}').click()" ondragover="handleDragOver(event,'${child.id}')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'${child.id}')">
+                                        <div class="upload-icon">☁️</div>
+                                        <div class="upload-text">拖拽文件或 <strong>点击选择</strong> - ${child.name}</div>
+                                        <div class="upload-hint">支持 .csv, .xlsx, .xls</div>
+                                    </div>
+                                    <input type="file" id="file-input-${child.id}" style="display:none" accept=".csv,.xlsx,.xls" onchange="handleFileSelect(event,'${child.id}')">
+                                    <div id="file-info-${child.id}"></div>
+                                    <div id="preview-${child.id}"></div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                }
+                // 普通模块（保持原有逻辑）
+                return `
+                <div class="data-window" id="window-${m.id}">
+                    <div class="window-header">
+                        <div class="window-title">
+                            <div class="icon ${m.iconClass}">${m.icon}</div>
+                            <div><h2>${m.name}</h2><span>${m.sub}</span></div>
+                        </div>
+                        <span class="window-badge" id="badge-${m.id}">待导入</span>
+                    </div>
+                    <div class="window-body">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" onclick="switchTab(${m.id},'upload')">文件上传</button>
+                            <button class="tab-btn" onclick="switchTab(${m.id},'manual')">手动输入</button>
+                        </div>
+                        <div id="upload-area-${m.id}">
+                            <div class="upload-area" onclick="document.getElementById('file-input-${m.id}').click()" ondragover="handleDragOver(event,${m.id})" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,${m.id})">
+                                <div class="upload-icon">☁️</div>
+                                <div class="upload-text">拖拽文件或 <strong>点击选择</strong></div>
+                                <div class="upload-hint">支持 .csv, .xlsx, .xls</div>
+                            </div>
+                            <input type="file" id="file-input-${m.id}" style="display:none" accept=".csv,.xlsx,.xls" onchange="handleFileSelect(event,${m.id})">
+                            <div id="file-info-${m.id}"></div>
+                            <div id="preview-${m.id}"></div>
+                        </div>
+                        <div class="manual-input" id="manual-area-${m.id}">
+                            <table class="data-table" id="manual-table-${m.id}">
+                                <thead><tr>${m.columns.map(c => `<th>${c}</th>`).join('')}<th>操作</th></tr></thead>
+                                <tbody><tr>${m.columns.map(() => `<td><input type="text" placeholder="-"></td>`).join('')}<td><button onclick="deleteRow(this,${m.id})" style="background:#f5576c;border:none;color:#fff;padding:4px 8px;border-radius:4px;cursor:pointer;">删</button></td></tr></tbody>
+                            </table>
+                            <button class="add-row-btn" onclick="addRow(${m.id})">+ 添加行</button>
+                            <button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="saveManualData(${m.id})">保存</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function switchTab(id, tab) {
+            document.getElementById(`upload-area-${id}`).style.display = tab === 'upload' ? 'block' : 'none';
+            document.getElementById(`manual-area-${id}`).classList.toggle('show', tab === 'manual');
+            document.querySelectorAll(`#window-${id} .tab-btn`).forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='upload')));
+        }
+
+        // 子模块切换
+        function switchSubModule(parentId, childId) {
+            const parentModule = dataModules.find(m => m.id === parentId);
+            if (!parentModule || !parentModule.isParent) return;
+
+            // 切换按钮状态
+            document.querySelectorAll(`#sub-tabs-${parentId} .sub-tab-btn`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 切换内容显示
+            parentModule.children.forEach(child => {
+                const content = document.getElementById(`sub-content-${child.id}`);
+                if (content) {
+                    content.classList.toggle('show', child.id === childId);
+                }
+            });
+        }
+
+        function handleDragOver(e, id) { e.preventDefault(); e.currentTarget.classList.add('dragover'); }
+        function handleDragLeave(e) { e.currentTarget.classList.remove('dragover'); }
+        function handleDrop(e, id) { e.preventDefault(); e.currentTarget.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if(f) processFile(f,id); }
+
+        function handleFileSelect(e, id) { const f = e.target.files[0]; if(f) processFile(f,id); }
+
+        function processFile(file, id) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['csv','xlsx','xls'].includes(ext)) { showToast('仅支持 CSV/Excel 文件','error'); return; }
+            moduleFiles[id] = file;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    if (ext === 'csv') {
+                        const content = new TextDecoder('gbk').decode(e.target.result);
+                        const lines = content.split('\n').filter(l=>l.trim());
+                        if (lines.length < 2) { showToast('CSV为空','error'); return; }
+                        
+                        // 自动检测真正的列头行：查找包含"ID"或"宝贝"的行
+                        let headerRowIndex = 0;
+                        for (let i = 0; i < Math.min(lines.length, 10); i++) {
+                            const lineStr = lines[i];
+                            if (lineStr.includes('ID') || lineStr.includes('宝贝') || lineStr.includes('商品')) {
+                                headerRowIndex = i;
+                                break;
+                            }
+                        }
+                        const headers = parseCSVLine(lines[headerRowIndex]).map(h=>h.trim());
+                        console.log('[CSV解析] 实际表头行:', headerRowIndex, headers);
+                        const rows = [];
+                        for (let i = headerRowIndex + 1; i < lines.length; i++) {
+                            const vals = parseCSVLine(lines[i]);
+                            if (vals.some(v=>v.trim())) {
+                                const row = {}; headers.forEach((h,idx) => row[h] = vals[idx]||'');
+                                rows.push(row);
+                            }
+                        }
+                        storeData(id, rows, headers, file.name);
+                    } else {
+                        const data = new Uint8Array(e.target.result);
+                        const wb = XLSX.read(data, {type:'array'});
+                        const sheet = wb.Sheets[wb.SheetNames[0]];
+                        const json = XLSX.utils.sheet_to_json(sheet, {header:1});
+                        if (json.length < 2) { showToast('数据为空','error'); return; }
+                        
+                        // 自动检测真正的列头行：查找包含"ID"或"宝贝"的行
+                        let headerRowIndex = 0;
+                        for (let i = 0; i < Math.min(json.length, 10); i++) {
+                            const row = json[i];
+                            const rowStr = row.map(h => String(h||'')).join('');
+                            // 包含ID或宝贝关键词的行可能是表头
+                            if (rowStr.includes('ID') || rowStr.includes('宝贝') || rowStr.includes('商品')) {
+                                headerRowIndex = i;
+                                break;
+                            }
+                        }
+                        const headers = json[headerRowIndex].map(h=>String(h||'').trim());
+                        console.log('[XLS解析] 实际表头行:', headerRowIndex, headers);
+                        const rows = [];
+                        for (let i = headerRowIndex + 1; i < json.length; i++) {
+                            if (json[i].some(v=>v!==undefined&&v!=='')) {
+                                const row = {}; headers.forEach((h,idx) => row[h] = json[i][idx]||'');
+                                rows.push(row);
+                            }
+                        }
+                        storeData(id, rows, headers, file.name);
+                    }
+                } catch(err) { showToast('解析失败:'+err.message,'error'); }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 获取模块名称（支持子模块）
+        function getModuleName(id) {
+            const isSubModule = typeof id === 'string' && id.includes('-');
+            if (isSubModule) {
+                const parentId = parseInt(id);
+                const parent = dataModules.find(m => m.id === parentId);
+                const child = parent?.children.find(c => c.id === id);
+                return child?.name || id;
+            }
+            return dataModules.find(m => m.id === id)?.name || id;
+        }
+
+        function parseCSVLine(line) {
+            const result = [], current = '';
+            let inQuotes = false, s = '';
+            for (let i = 0; i < line.length; i++) {
+                const c = line[i];
+                if (c === '"') { inQuotes = !inQuotes; }
+                else if (c === ',' && !inQuotes) { result.push(s.trim()); s = ''; }
+                else s += c;
+            }
+            result.push(s.trim());
+            return result;
+        }
+
+        function storeData(id, rows, headers, fileName) {
+            const isSubModule = typeof id === 'string' && id.includes('-');
+            const parentId = isSubModule ? parseInt(id) : id;
+
+            moduleData[id] = { headers, rows, fileName, timestamp: new Date().toISOString() };
+            const badgeEl = document.getElementById(`badge-${id}`);
+            if (badgeEl) {
+                badgeEl.textContent = `已导入 ${rows.length} 条`;
+                badgeEl.classList.add('has-data');
+            }
+            const windowEl = document.getElementById(`window-${parentId}`);
+            if (windowEl) windowEl.classList.add('active');
+            const size = (moduleFiles[id].size/1024).toFixed(1);
+            document.getElementById(`file-info-${id}`).innerHTML = `<div class="file-info"><div class="file-icon">📄</div><div class="file-details"><div class="file-name">${fileName}</div><div class="file-size">${size}KB · ${rows.length}条</div></div><button class="remove-btn" onclick="removeData('${id}')">&times;</button></div>`;
+            document.getElementById(`preview-${id}`).innerHTML = `<div class="data-preview"><table><thead><tr>${headers.slice(0,6).map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,5).map(r=>`<tr>${headers.slice(0,6).map(h=>`<td>${r[h]||'-'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>${rows.length>5?'<div style="text-align:center;padding:10px;font-size:11px;color:rgba(255,255,255,0.4)">...共'+rows.length+'条</div>':''}`;
+
+            // 更新父模块badge显示已导入的子模块数量
+            updateParentBadge(parentId);
+            updateGlobalStats();
+
+            const moduleName = isSubModule
+                ? dataModules.find(m => m.id === parentId)?.children.find(c => c.id === id)?.name || id
+                : dataModules.find(m=>m.id===id)?.name || id;
+            showToast(`${moduleName} - 导入成功！`);
+
+            // 如果导入了直通车数据 或 补单数据 或 图片+商品ID 或 生意参谋数据，自动刷新分析汇总表
+            if (id === '4a' || id === '4b' || id === '4c' || id === '3a' || id === 2 || id === '1a' || id === '1b') {
+                renderAnalysisTable();
+            }
+        }
+
+        function updateParentBadge(parentId) {
+            const parentModule = dataModules.find(m => m.id === parentId);
+            if (!parentModule || !parentModule.isParent) return;
+
+            const importedCount = parentModule.children.filter(c => moduleData[c.id]).length;
+            const totalCount = parentModule.children.length;
+
+            if (importedCount > 0) {
+                const pBadge = document.getElementById(`badge-${parentId}`);
+                if (pBadge) {
+                    pBadge.textContent = `已导入 ${importedCount}/${totalCount}`;
+                    pBadge.classList.add('has-data');
+                }
+            }
+        }
+
+        function removeData(id) {
+            const isSubModule = typeof id === 'string' && id.includes('-');
+            const parentId = isSubModule ? parseInt(id) : id;
+
+            delete moduleData[id]; delete moduleFiles[id];
+            const remBadge = document.getElementById(`badge-${id}`);
+            if (remBadge) {
+                remBadge.textContent = '待导入';
+                remBadge.classList.remove('has-data');
+            }
+            const fi = document.getElementById(`file-info-${id}`);
+            if (fi) fi.innerHTML = '';
+            const pv = document.getElementById(`preview-${id}`);
+            if (pv) pv.innerHTML = '';
+            const fiInput = document.getElementById(`file-input-${id}`);
+            if (fiInput) fiInput.value = '';
+
+            // 更新父模块badge
+            if (isSubModule) {
+                updateParentBadge(parentId);
+            } else {
+                const winEl = document.getElementById(`window-${id}`);
+                if (winEl) winEl.classList.remove('active');
+            }
+            updateGlobalStats();
+            if (id === '4a' || id === '4b' || id === '4c' || id === '3a' || id === 2 || id === '1a' || id === '1b') renderAnalysisTable();
+            showToast('数据已清除');
+        }
+
+        function addRow(id) {
+            const m = dataModules.find(x=>x.id===id);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `${m.columns.map(()=>`<td><input type="text"></td>`).join('')}<td><button onclick="deleteRow(this,${id})" style="background:#f5576c;border:none;color:#fff;padding:4px 8px;border-radius:4px;cursor:pointer;">删</button></td>`;
+            document.querySelector(`#manual-table-${id} tbody`).appendChild(tr);
+        }
+
+        function deleteRow(btn, id) {
+            const tbody = btn.closest('tbody');
+            if (tbody.children.length > 1) btn.closest('tr').remove();
+            else showToast('至少保留一行','error');
+        }
+
+        function saveManualData(id) {
+            const m = dataModules.find(x=>x.id===id);
+            const rows = [];
+            document.querySelectorAll(`#manual-table-${id} tbody tr`).forEach(tr => {
+                const inputs = tr.querySelectorAll('input');
+                if (inputs.some(i=>i.value.trim())) {
+                    const row = {}; m.columns.forEach((c,i)=>row[c]=inputs[i].value.trim());
+                    rows.push(row);
+                }
+            });
+            if (!rows.length) { showToast('请输入数据','error'); return; }
+            storeData(id, rows, m.columns, '手动输入');
+            switchTab(id,'upload');
+            showToast(`已保存 ${rows.length} 条数据`);
+        }
+
+        function updateGlobalStats() {
+            let count = 0;
+            let total = 0;
+            let timestamps = [];
+
+            dataModules.forEach(m => {
+                if (m.isParent) {
+                    // 父模块 - 统计子模块
+                    m.children.forEach(child => {
+                        if (moduleData[child.id]) {
+                            count++;
+                            total += moduleData[child.id].rows.length;
+                            if (moduleData[child.id].timestamp) {
+                                timestamps.push(moduleData[child.id].timestamp);
+                            }
+                        }
+                    });
+                } else {
+                    if (moduleData[m.id]) {
+                        count++;
+                        total += moduleData[m.id].rows.length;
+                        if (moduleData[m.id].timestamp) {
+                            timestamps.push(moduleData[m.id].timestamp);
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('totalModules').textContent = count;
+            document.getElementById('totalRows').textContent = total.toLocaleString();
+            // 总共12个子模块（生意参谋3个 + 图片ID1个 + 补单4个 + 直通车4个）
+            document.getElementById('dataCompleteness').textContent = Math.round(count/12*100)+'%';
+            if (timestamps.length) {
+                document.getElementById('lastUpdate').textContent = new Date(Math.max(...timestamps.map(t=>new Date(t)))).toLocaleDateString('zh-CN');
+            }
+        }
+
+        function refreshAnalysis() {
+            renderAnalysisTable();
+        }
+
+        // 渲染分析汇总表：从多数据源 vlookup 填充
+        function renderAnalysisTable() {
+            try {
+            const tbody = document.getElementById('analysisBody');
+            const data4a  = moduleData['4a'];
+            const data4b  = moduleData['4b'];
+            const data4c  = moduleData['4c'];
+            const data3a  = moduleData['3a'];
+            const data2   = moduleData[2];
+            const data1a  = moduleData['1a'];
+            const data1b  = moduleData['1b'];
+
+            // 调试：打印各模块实际列名
+            if (data1a && data1a.rows && data1a.rows.length > 0) {
+                const keys = Object.keys(data1a.rows[0]);
+                console.log('[生意参谋1a] 实际列名:', keys);
+                const hasId = keys.some(k => k.includes('ID') || k.includes('id'));
+                if (!hasId) {
+                    tbody.innerHTML = `<tr><td colspan="24"><div class="empty-state"><div class="icon">🔍</div><p>生意参谋上周数据列名异常，未找到商品ID列</p><p style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px">实际列名：${keys.slice(0,10).join(' / ')}</p></div></td></tr>`;
+                    return;
+                }
+            }
+            if (data1b && data1b.rows && data1b.rows.length > 0) {
+                const keys = Object.keys(data1b.rows[0]);
+                console.log('[生意参谋1b] 实际列名:', keys);
+            }
+
+            if ((!data4a  || !data4a.rows  || data4a.rows.length  === 0) &&
+                (!data2   || !data2.rows   || data2.rows.length   === 0) &&
+                (!data1a  || !data1a.rows  || data1a.rows.length  === 0) &&
+                (!data1b  || !data1b.rows  || data1b.rows.length  === 0)) {
+                tbody.innerHTML = `<tr><td colspan="24"><div class="empty-state"><div class="icon">📋</div><p>请先导入数据：直通车7天总数据 / 图片+商品ID / 生意参谋数据</p></div></td></tr>`;
+                return;
+            }
+
+            // --- 1. 图片+商品ID 查找表：宝贝ID → {货号, 图片, 负责人, 备注}
+            const imgMap = new Map();
+            if (data2 && data2.rows && data2.rows.length > 0) {
+                data2.rows.forEach(row => {
+                    const key = String(row['宝贝ID'] || row['商品ID'] || '').trim();
+                    if (!key) return;
+                    imgMap.set(key, {
+                        货号: row['商家编码'] || '-',
+                        图片: row['宝贝图片'] || row['图片URL'] || '-',
+                        负责人: row['负责人'] || '-',
+                        备注: row['备注'] || '-'
+                    });
+                });
+            }
+
+            // --- 2. 生意参谋上周数据 查找表：商品ID → {GMV, 退款金额}
+            // 兼容多种可能的ID列名
+            const gmvMap = new Map();
+            const refundMap = new Map();
+            let foundGmvCol = null, foundRefundCol = null;
+            if (data1a && data1a.rows && data1a.rows.length > 0) {
+                // 尝试多个可能的ID列名
+                const idCandidates = ['商品ID', '宝贝ID', 'id', 'ID', 'ItemId', 'item_id'];
+                const gmvCandidates = ['支付金额', '成交金额', '销售额', 'GMV'];
+                const refundCandidates = ['成功退款金额', '退款金额', '退款', '售后退款'];
+                data1a.rows.forEach(row => {
+                    // 找到第一个存在的ID列
+                    const idCol = idCandidates.find(c => row[c] !== undefined && row[c] !== null && String(row[c]).trim() !== '');
+                    if (!idCol) return;
+                    const key = String(row[idCol]).trim();
+                    if (!key) return;
+                    
+                    // 找到GMV列
+                    if (!foundGmvCol) {
+                        foundGmvCol = gmvCandidates.find(c => row[c] !== undefined && row[c] !== null) || null;
+                    }
+                    // 找到退款列
+                    if (!foundRefundCol) {
+                        foundRefundCol = refundCandidates.find(c => row[c] !== undefined && row[c] !== null) || null;
+                    }
+                    
+                    const gmv = foundGmvCol ? (parseFloat(String(row[foundGmvCol] || '0').replace(/[^0-9.-]/g, '')) || 0) : 0;
+                    const refund = foundRefundCol ? (parseFloat(String(row[foundRefundCol] || '0').replace(/[^0-9.-]/g, '')) || 0) : 0;
+                    if (gmvMap.has(key)) {
+                        gmvMap.set(key, gmvMap.get(key) + gmv);
+                        refundMap.set(key, (refundMap.get(key) || 0) + refund);
+                    } else {
+                        gmvMap.set(key, gmv);
+                        refundMap.set(key, refund);
+                    }
+                });
+                console.log('[生意参谋1a] GMV列名:', foundGmvCol, '退款列名:', foundRefundCol);
+            }
+
+            // --- 2b. 生意参谋上上周数据 查找表：商品ID → {GMV, 退款金额}
+            const gmvMap1b = new Map();
+            const refundMap1b = new Map();
+            let foundGmvCol1b = null, foundRefundCol1b = null;
+            if (data1b && data1b.rows && data1b.rows.length > 0) {
+                const idCandidates = ['商品ID', '宝贝ID', 'id', 'ID', 'ItemId', 'item_id'];
+                const gmvCandidates = ['支付金额', '成交金额', '销售额', 'GMV'];
+                const refundCandidates = ['成功退款金额', '退款金额', '退款', '售后退款'];
+                data1b.rows.forEach(row => {
+                    const idCol = idCandidates.find(c => row[c] !== undefined && row[c] !== null && String(row[c]).trim() !== '');
+                    if (!idCol) return;
+                    const key = String(row[idCol]).trim();
+                    if (!key) return;
+                    
+                    if (!foundGmvCol1b) {
+                        foundGmvCol1b = gmvCandidates.find(c => row[c] !== undefined && row[c] !== null) || null;
+                    }
+                    if (!foundRefundCol1b) {
+                        foundRefundCol1b = refundCandidates.find(c => row[c] !== undefined && row[c] !== null) || null;
+                    }
+                    
+                    const gmv = foundGmvCol1b ? (parseFloat(String(row[foundGmvCol1b] || '0').replace(/[^0-9.-]/g, '')) || 0) : 0;
+                    const refund = foundRefundCol1b ? (parseFloat(String(row[foundRefundCol1b] || '0').replace(/[^0-9.-]/g, '')) || 0) : 0;
+                    if (gmvMap1b.has(key)) {
+                        gmvMap1b.set(key, gmvMap1b.get(key) + gmv);
+                        refundMap1b.set(key, (refundMap1b.get(key) || 0) + refund);
+                    } else {
+                        gmvMap1b.set(key, gmv);
+                        refundMap1b.set(key, refund);
+                    }
+                });
+                console.log('[生意参谋1b] GMV列名:', foundGmvCol1b, '退款列名:', foundRefundCol1b);
+            }
+
+            // --- 3. 直通车数据按主体ID聚合（累加成交和花费）
+            const 直通Map = new Map();
+            if (data4a && data4a.rows && data4a.rows.length > 0) {
+                console.log('[直通车4a] 实际列名:', Object.keys(data4a.rows[0]));
+                data4a.rows.forEach(row => {
+                    // 兼容多种ID列名
+                    const id = String(row['主体ID'] || row['商品ID'] || row['ID'] || row['id'] || '').trim();
+                    if (!id) return;
+                    const 成交 = parseFloat(String(row['总成交金额'] || row['成交金额'] || row['成交'] || '0').replace(/[^0-9.-]/g, '')) || 0;
+                    const 花费 = parseFloat(String(row['花费'] || '0').replace(/[^0-9.-]/g, '')) || 0;
+                    if (直通Map.has(id)) {
+                        直通Map.get(id).成交 += 成交;
+                        直通Map.get(id).花费 += 花费;
+                    } else {
+                        直通Map.set(id, { 成交, 花费 });
+                    }
+                });
+                console.log('[直通车4a] 直通Map:', [...直通Map.entries()].slice(0,5));
+            }
+
+            // --- 3b. 直通车关键词数据 查找表：主体ID → 关键词花费
+            const 关键词花费Map = new Map();
+            if (data4b && data4b.rows && data4b.rows.length > 0) {
+                console.log('[直通车4b] 实际列名:', Object.keys(data4b.rows[0]));
+                data4b.rows.forEach(row => {
+                    // 兼容多种ID列名
+                    const id = String(row['主体ID'] || row['商品ID'] || row['ID'] || row['id'] || '').trim();
+                    if (!id) return;
+                    const 花费 = parseFloat(String(row['花费'] || '0').replace(/[^0-9.-]/g, '')) || 0;
+                    if (关键词花费Map.has(id)) {
+                        关键词花费Map.set(id, 关键词花费Map.get(id) + 花费);
+                    } else {
+                        关键词花费Map.set(id, 花费);
+                    }
+                });
+                console.log('[直通车4b] 关键词花费Map:', [...关键词花费Map.entries()].slice(0,5));
+            }
+
+            // --- 3c. 直通车人群推广数据 查找表：主体ID → 人群花费
+            const 人群花费Map = new Map();
+            if (data4c && data4c.rows && data4c.rows.length > 0) {
+                console.log('[直通车4c] 实际列名:', Object.keys(data4c.rows[0]));
+                data4c.rows.forEach(row => {
+                    // 兼容多种ID列名
+                    const id = String(row['主体ID'] || row['商品ID'] || row['ID'] || row['id'] || '').trim();
+                    if (!id) return;
+                    const 花费 = parseFloat(String(row['花费'] || '0').replace(/[^0-9.-]/g, '')) || 0;
+                    if (人群花费Map.has(id)) {
+                        人群花费Map.set(id, 人群花费Map.get(id) + 花费);
+                    } else {
+                        人群花费Map.set(id, 花费);
+                    }
+                });
+                console.log('[直通车4c] 人群花费Map:', [...人群花费Map.entries()].slice(0,5));
+            }
+
+            // --- 3d. 补单珠海数据 查找表：商品ID → 本金（刷单）
+            const 刷单Map = new Map();
+            if (data3a && data3a.rows && data3a.rows.length > 0) {
+                console.log('[补单3a] 实际列名:', Object.keys(data3a.rows[0]));
+                data3a.rows.forEach(row => {
+                    const id = String(row['商品ID'] || '').trim();
+                    if (!id) return;
+                    const 本金 = parseFloat(String(row['本金'] || '0').replace(/[^0-9.-]/g, '')) || 0;
+                    if (刷单Map.has(id)) {
+                        刷单Map.set(id, 刷单Map.get(id) + 本金);
+                    } else {
+                        刷单Map.set(id, 本金);
+                    }
+                });
+                console.log('[补单3a] 刷单Map:', [...刷单Map.entries()].slice(0,5));
+            }
+
+            // 主体ID列表优先级：直通车 > 上周数据 > 上上周数据 > 图片
+            const idList = 直通Map.size > 0 ? [...直通Map.keys()]
+                : gmvMap.size  > 0 ? [...gmvMap.keys()]
+                : gmvMap1b.size > 0 ? [...gmvMap1b.keys()]
+                : [...imgMap.keys()];
+
+            if (idList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="24"><div class="empty-state"><div class="icon">⚠️</div><p>未能匹配到任何数据，请确认导入的数据中包含相应ID列</p></div></td></tr>`;
+                return;
+            }
+
+            let html = '';
+            idList.forEach(id => {
+                const 直通 = 直通Map.get(id) || { 成交: 0, 花费: 0 };
+                const 商品 = imgMap.get(id) || {};
+                const 成交 = 直通.成交;
+                const 花费 = 直通.花费;
+                const roi  = 花费 > 0 ? (成交 / 花费).toFixed(2) : '-';
+
+                // 近7天GMV：生意参谋上周数据的支付金额
+                const 近7天GMV = gmvMap.get(id) || 0;
+                // 上上周GMV：生意参谋上上周数据的支付金额
+                const 上上周GMV = gmvMap1b.get(id) || 0;
+                // 近7天退款金额：生意参谋上周数据的成功退款金额
+                const 近7天退款金额 = refundMap.get(id) || 0;
+                // 上上周退款金额：生意参谋上上周数据的成功退款金额
+                const 上上周退款金额 = refundMap1b.get(id) || 0;
+                // 计算退款率
+                const 近7天退款率 = 近7天GMV > 0 ? (近7天退款金额 / 近7天GMV) : 0;
+                const 上上周退款率 = 上上周GMV > 0 ? (上上周退款金额 / 上上周GMV) : 0;
+                // 退款率环比 = (近7天退款率 - 上上周退款率) / 上上周退款率
+                const 退款率环比 = 上上周退款率 > 0 ? (((近7天退款率 - 上上周退款率) / 上上周退款率) * 100).toFixed(2) + '%' : '-';
+                // 关键词花费：直通车4b关键词数据
+                const 关键词花费 = 关键词花费Map.get(id) || 0;
+                // 人群花费：直通车4c人群推广数据
+                const 人群花费 = 人群花费Map.get(id) || 0;
+                // 刷单：补单3a珠海数据的本金
+                const 刷单 = 刷单Map.get(id) || 0;
+                // 实际7天GMV = 近7天GMV - 刷单
+                const 实际7天GMV = 近7天GMV - 刷单;
+                // GMV费率 = 推广总花费（周）÷ 近7天GMV
+                const GMV费率 = 近7天GMV > 0 ? (花费 / 近7天GMV) : 0;
+                // 净GMV费率 = 推广总花费（周）÷ 实际7天GMV ÷ (1 - 近7天退款率)
+                const 净GMV费率 = 实际7天GMV > 0 && (1 - 近7天退款率) > 0 ? (花费 / 实际7天GMV / (1 - 近7天退款率)) : 0;
+                // GMV环比 = (实际7天GMV - 上上周GMV) / 上上周GMV
+                const GMV环比 = 上上周GMV > 0 ? (((实际7天GMV - 上上周GMV) / 上上周GMV) * 100).toFixed(2) + '%' : '-';
+                // 上上周费率 = 花费 / 上上周GMV
+                const 上上周费率 = 上上周GMV > 0 ? (花费 / 上上周GMV) : 0;
+                // 费率环比 = (GMV费率 - 上上周费率) / 上上周费率
+                const 费率环比 = 上上周费率 > 0 ? (((GMV费率 - 上上周费率) / 上上周费率) * 100).toFixed(2) + '%' : '-';
+
+                // 图片列（支持 DISPIMG 公式提取 URL）
+                const imgVal = 商品.图片 || '-';
+                let imgUrl = '-';
+                if (imgVal && imgVal !== '-' && imgVal !== 'undefined') {
+                    const dispMatch = String(imgVal).match(/DISPIMG\s*\(\s*"[^"]+"\s*,\s*"([^"]+)"\s*\)/i);
+                    imgUrl = dispMatch ? dispMatch[1] : (String(imgVal).startsWith('http') ? imgVal : '-');
+                }
+                const imgCell = imgUrl !== '-'
+                    ? `<img src="${imgUrl}" class="table-img" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><span class="img-placeholder" style="display:none">🖼️ 失败</span>`
+                    : `<span class="img-placeholder">🖼️</span>`;
+
+                // 格式化金额
+                const fmt = v => v > 0 ? '¥' + v.toFixed(2) : '-';
+
+                html += `<tr>
+                    <td>${id}</td>
+                    <td>${商品.货号 || '-'}</td>
+                    <td>${imgCell}</td>
+                    <td>${商品.负责人 || '-'}</td>
+                    <td>${商品.备注 || '-'}</td>
+                    <td class="num-cell">${实际7天GMV > 0 ? fmt(实际7天GMV) : '-'}</td>
+                    <td class="num-cell">${近7天GMV > 0 ? fmt(近7天GMV) : '-'}</td>
+                    <td class="num-cell">${上上周GMV > 0 ? fmt(上上周GMV) : '-'}</td>
+                    <td class="num-cell">${GMV环比}</td>
+                    <td class="num-cell">${GMV费率 > 0 ? (GMV费率 * 100).toFixed(2) + '%' : '-'}</td>
+                    <td class="num-cell">${净GMV费率 > 0 ? (净GMV费率 * 100).toFixed(2) + '%' : '-'}</td>
+                    <td class="num-cell">${上上周费率 > 0 ? (上上周费率 * 100).toFixed(2) + '%' : '-'}</td>
+                    <td class="num-cell">${费率环比}</td>
+                    <td class="num-cell">${成交 > 0 ? fmt(成交) : '-'}</td>
+                    <td class="num-cell">${花费 > 0 ? fmt(花费) : '-'}</td>
+                    <td class="num-cell">${roi}</td>
+                    <td class="num-cell">${关键词花费 > 0 ? fmt(关键词花费) : '-'}</td>
+                    <td class="num-cell">${人群花费 > 0 ? fmt(人群花费) : '-'}</td>
+                    <td class="num-cell">-</td>
+                    <td>${刷单 > 0 ? fmt(刷单) : '-'}</td>
+                    <td class="num-cell">${近7天退款金额 > 0 ? fmt(近7天退款金额) : '-'}</td>
+                    <td class="num-cell">${(近7天退款率 * 100).toFixed(2)}%</td>
+                    <td class="num-cell">${(上上周退款率 * 100).toFixed(2)}%</td>
+                    <td class="num-cell">${退款率环比}</td>
+                </tr>`;
+            });
+
+            tbody.innerHTML = html;
+            const parts = [];
+            if (直通Map.size > 0) parts.push('直通车');
+            if (gmvMap.size  > 0) parts.push('上周数据');
+            if (gmvMap1b.size > 0) parts.push('上上周数据');
+            if (imgMap.size  > 0) parts.push('图片+商品ID');
+            showToast(`汇总完成，共 ${idList.length} 条（来源：${parts.join('、')}）`);
+            } catch(err) {
+                console.error('renderAnalysisTable error:', err);
+                const tb = document.getElementById('analysisBody');
+                if (tb) tb.innerHTML = `<tr><td colspan="24"><div class="empty-state"><div class="icon">⚠️</div><p>渲染出错：${err.message}</p></div></td></tr>`;
+            }
+        }
+
+        function generateSummary() {
+            const panel = document.getElementById('summaryPanel');
+            const content = document.getElementById('summaryContent');
+            if (!Object.keys(moduleData).length) { showToast('请先导入数据','error'); return; }
+            let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;">';
+            dataModules.forEach(m => {
+                if (m.isParent) {
+                    // 父模块 - 显示子模块统计
+                    m.children.forEach(child => {
+                        const d = moduleData[child.id];
+                        if (!d) return;
+                        html += `<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:15px;border:1px solid rgba(255,255,255,0.05)"><h4 style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:10px">${m.icon} ${child.name}</h4><div style="font-size:24px;font-weight:bold;color:#f5576c">${d.rows.length}</div><div style="font-size:11px;color:rgba(255,255,255,0.4)">条记录</div></div>`;
+                    });
+                } else {
+                    const d = moduleData[m.id];
+                    if (!d) return;
+                    const numericSum = d.rows.reduce((sum,r) => {
+                        return sum + Object.values(r).reduce((s,v) => s + (parseFloat(String(v).replace(/[^0-9.-]/g,''))||0), 0);
+                    }, 0);
+                    html += `<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:15px;border:1px solid rgba(255,255,255,0.05)"><h4 style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:10px">${m.icon} ${m.name}</h4><div style="font-size:24px;font-weight:bold;color:#f5576c">${d.rows.length}</div><div style="font-size:11px;color:rgba(255,255,255,0.4)">条记录</div></div>`;
+                }
+            });
+            html += '</div>';
+            content.innerHTML = html;
+            panel.style.display = 'block';
+            panel.scrollIntoView({behavior:'smooth'});
+        }
+
+        function exportAllData() {
+            if (!Object.keys(moduleData).length) { showToast('无数据可导出','error'); return; }
+            document.getElementById('exportModal').classList.add('show');
+        }
+
+        function closeModal() { document.getElementById('exportModal').classList.remove('show'); }
+
+        function exportAs(format) {
+            let content = '', filename = `天猫数据_${new Date().toISOString().split('T')[0]}`;
+            if (format === 'json') {
+                content = JSON.stringify(moduleData,null,2);
+                filename += '.json';
+            } else {
+                dataModules.forEach(m => {
+                    if (m.isParent) {
+                        // 父模块 - 导出子模块
+                        m.children.forEach(child => {
+                            const d = moduleData[child.id];
+                            if (!d) return;
+                            content += `===== ${m.name} - ${child.name} =====\n${d.headers.join(',')}\n`;
+                            d.rows.forEach(r => content += d.headers.map(h=>`"${(r[h]||'').toString().replace(/"/g,'""')}"`).join(',')+'\n');
+                            content += '\n';
+                        });
+                    } else {
+                        const d = moduleData[m.id];
+                        if (!d) return;
+                        content += `===== ${m.name} =====\n${d.headers.join(',')}\n`;
+                        d.rows.forEach(r => content += d.headers.map(h=>`"${(r[h]||'').toString().replace(/"/g,'""')}"`).join(',')+'\n');
+                        content += '\n';
+                    }
+                });
+                filename += '.csv';
+            }
+            const blob = new Blob(['\ufeff'+content],{type:'text/plain;charset=utf-8'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = filename; a.click();
+            closeModal(); showToast('导出成功');
+        }
+
+        function showToast(msg, type='success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.className = 'toast '+type+' show';
+            setTimeout(()=>t.classList.remove('show'),3000);
+        }
+
+        document.getElementById('exportModal').addEventListener('click', e => { if(e.target===this) closeModal(); });
+
+        init();
+    </script>
+</body>
+</html>

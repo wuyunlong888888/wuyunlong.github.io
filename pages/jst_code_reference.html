@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聚水潭编码资料</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg1:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--cyan:#00d4ff;--purple:#7b2ff7;--text:#d0ddf5;--muted:#8a9bcf;--border:rgba(255,255,255,.12);--card:rgba(255,255,255,.05)}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;min-height:100vh;padding:20px;color:#fff;background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3))}
+h1{text-align:center;font-size:2rem;font-weight:700;margin-bottom:8px;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}.subtitle{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:24px}
+.import-zone{background:rgba(255,255,255,.06);border:2px dashed rgba(0,212,255,.4);border-radius:16px;padding:36px;text-align:center;margin-bottom:24px;cursor:pointer;transition:.2s}.import-zone:hover,.import-zone.drag-over{border-color:var(--cyan);background:rgba(0,212,255,.08);transform:scale(1.01)}.import-zone .hint{font-size:1rem;color:#b8c5e8;margin-bottom:6px}.import-zone .sub{font-size:.8rem;color:#5a6b9a}#fileInput{display:none}
+.info-bar,.summary-bar{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}.info-chip,.summary-bar{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:30px}.info-chip{padding:6px 16px;font-size:.85rem;color:#b8c5e8}.info-chip span{color:var(--cyan);font-weight:600}.summary-bar{border-radius:12px;padding:14px 20px;gap:28px}.summary-item{display:flex;flex-direction:column;gap:3px}.summary-item .label{font-size:.73rem;color:#5a6b9a}.summary-item .value{font-size:1.2rem;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.config-bar{border-radius:12px;padding:12px 16px;margin-bottom:16px}.combo-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:rgba(123,47,247,.08);border:1px solid rgba(123,47,247,.25)}.pack-bar{background:rgba(255,165,0,.06);border:1px solid rgba(255,165,0,.2)}.bar-title{font-size:.78rem;font-weight:600;margin-bottom:10px;color:#f0a030}.combo-bar label,.pack-row{display:flex;align-items:center;gap:6px;font-size:.78rem;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;padding:5px 10px}.combo-bar label{color:#b0a8d8}.combo-bar label span,.pack-row .size-label{font-weight:600;white-space:nowrap}.combo-bar label span{color:#9d6eff}.pack-row{color:#c0a878;border-color:rgba(255,165,0,.15)}.pack-row .size-label{color:#f0c060}.combo-bar input,.pack-row input{background:rgba(255,255,255,.08);border:1px solid rgba(123,47,247,.45);border-radius:4px;color:#fff;padding:4px 8px;font-size:.78rem;outline:none}.combo-bar input{width:88px}.pack-row input{width:110px;border-color:rgba(255,165,0,.35)}.combo-bar input:focus{border-color:var(--purple)}.pack-row input:focus{border-color:#f0a030}.pack-rows{display:flex;flex-wrap:wrap;gap:8px}.bar-actions{display:flex;gap:6px;margin-left:auto;align-items:center}
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px}.panel{background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:16px;overflow:hidden}.panel-header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08)}.panel-title{font-size:.95rem;font-weight:600;display:flex;align-items:center;gap:8px}.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.dot.red{background:#ff4d6d}.dot.purple{background:#9d4edd}.stats{font-size:.78rem;color:#6a7fa8}.panel-actions{display:flex;gap:8px;align-items:center}.btn{padding:7px 16px;border:0;border-radius:8px;font-size:.82rem;cursor:pointer;transition:.2s;font-family:inherit}.btn-export{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;font-weight:600}.btn-export:hover{opacity:.85;transform:scale(1.03)}.btn-export:disabled{opacity:.4;cursor:not-allowed;transform:none}.btn-clear,.btn-reset{background:rgba(255,255,255,.1);color:var(--muted);border:1px solid var(--border)}.btn-clear:hover,.btn-reset:hover{background:rgba(255,255,255,.16)}.btn-sm{padding:5px 12px;font-size:.78rem}.btn-apply{background:var(--purple);color:#fff}.btn-apply:hover{opacity:.85}
+.preview-wrap{overflow:auto;max-height:480px}.empty-state{padding:50px 20px;text-align:center;color:#4a5a7a}table{width:100%;border-collapse:collapse;font-size:.75rem}thead{position:sticky;top:0;z-index:2}th{background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(123,47,247,.15));color:#c8d8f8;padding:9px 7px;text-align:center;font-weight:600;border-bottom:1px solid rgba(0,212,255,.2);white-space:nowrap;font-size:.78rem}td{padding:7px;text-align:center;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}tr:nth-child(even) td{background:rgba(255,255,255,.02)}tr:hover td{background:rgba(0,212,255,.06)}.footer-tip{text-align:center;color:#3a4a6a;font-size:.75rem;margin-top:20px}@media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+</style>
+
+<style id="responsive-enhancement-v4">
+
+/* ===== 手机 / 平板端口增强适配 v4 ===== */
+html, body { min-width: 0 !important; max-width: 100% !important; }
+body { overflow-x: hidden !important; -webkit-text-size-adjust: 100%; }
+.preview-wrap { -webkit-overflow-scrolling: touch; }
+
+@media (min-width: 769px) and (max-width: 1180px) {
+  body { padding: 18px !important; }
+  .main-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .import-zone { padding: 30px 18px !important; }
+  .summary-bar { gap: 18px !important; }
+}
+
+@media (max-width: 768px) {
+  body { padding: 12px !important; }
+  h1 { font-size: 1.45rem !important; margin-top: 2px !important; }
+  .subtitle { font-size: .8rem !important; margin-bottom: 16px !important; }
+  .import-zone { padding: 24px 12px !important; border-radius: 14px !important; margin-bottom: 16px !important; }
+  #infoBar:not([style*="display:none"]):not([style*="display: none"]), #summaryBar:not([style*="display:none"]):not([style*="display: none"]) { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .info-chip { border-radius: 12px !important; padding: 8px 10px !important; font-size: .78rem !important; }
+  .summary-bar { padding: 12px !important; border-radius: 14px !important; }
+  .config-bar { padding: 10px !important; border-radius: 12px !important; }
+  .combo-bar { align-items: stretch !important; }
+  .combo-bar label, .pack-row { width: 100% !important; justify-content: space-between !important; }
+  .combo-bar input, .pack-row input { width: min(180px, 50vw) !important; }
+  .bar-actions { width: 100% !important; margin-left: 0 !important; justify-content: flex-end !important; }
+  .main-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
+  .panel { border-radius: 14px !important; }
+  .panel-header { padding: 12px !important; align-items: flex-start !important; }
+  .panel-actions { width: 100% !important; justify-content: space-between !important; }
+  .btn { padding: 8px 12px !important; }
+  .preview-wrap { max-height: 56vh !important; }
+  table { min-width: 720px !important; font-size: .7rem !important; }
+  th, td { padding: 7px 6px !important; }
+}
+
+@media (max-width: 430px) {
+  #infoBar:not([style*="display:none"]):not([style*="display: none"]), #summaryBar:not([style*="display:none"]):not([style*="display: none"]) { grid-template-columns: 1fr !important; }
+  .panel-actions { gap: 6px !important; flex-wrap: wrap !important; }
+  .btn { flex: 1 1 auto !important; }
+}
+
+</style>
+</head>
+<body>
+<h1>聚水潭编码资料</h1>
+<p class="subtitle">导入客户需求表，生成聚水潭普通商品表和组合装表</p>
+
+<div class="import-zone" id="importZone">
+  <div class="hint">点击选择文件或拖拽文件到此处</div>
+  <div class="sub">支持 .xlsx 格式客户需求表</div>
+</div>
+<input type="file" id="fileInput" accept=".xlsx">
+
+<div class="info-bar" id="infoBar" style="display:none"></div>
+<div class="config-bar combo-bar" id="customComboBar" style="display:none"></div>
+
+<div class="config-bar pack-bar" id="packBagBar" style="display:none">
+  <div class="bar-title">包装袋代码配置（按尺码）</div>
+  <div class="pack-rows" id="packBagRows"></div>
+  <div class="bar-actions">
+    <button class="btn btn-sm btn-reset" onclick="resetPackBag()">重置</button>
+    <button class="btn btn-sm btn-apply" onclick="applyPackBag()">应用</button>
+  </div>
+</div>
+
+<div class="summary-bar" id="summaryBar" style="display:none"></div>
+
+<div class="main-grid" id="mainGrid">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><span class="dot red"></span>普通商品表</div>
+      <div class="panel-actions">
+        <span class="stats" id="ptStats">0 行</span>
+        <button class="btn btn-export" id="btnExportPt" onclick="exportTable('pt')" disabled>导出 xlsx</button>
+        <button class="btn btn-clear" onclick="clearData()">清空</button>
+      </div>
+    </div>
+    <div class="preview-wrap" id="ptPreview"><div class="empty-state">等待导入文件...</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><span class="dot purple"></span>组合装表</div>
+      <div class="panel-actions">
+        <span class="stats" id="comboStats">0 行</span>
+        <button class="btn btn-export" id="btnExportCombo" onclick="exportTable('combo')" disabled>导出 xlsx</button>
+        <button class="btn btn-clear" onclick="clearData()">清空</button>
+      </div>
+    </div>
+    <div class="preview-wrap" id="comboPreview"><div class="empty-state">等待导入文件...</div></div>
+  </div>
+</div>
+
+<p class="footer-tip">数据仅在本地浏览器处理，不会上传至任何服务器</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? '').replace(/[&<>"]/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[s]));
+
+const state = {
+  ptData: [], comboData: [], specs: [], sizes: [], groupNames: [],
+  articleNo: '', artNoShort: '', unitPrice: 0, packPrice: 0, certPrice: 0,
+  packCode: '', certCode: '', packColorSpec: '', certColorSpec: '', packCodeBySize: {}
+};
+
+const PT_HEADERS = ['款式编码','商品编码','图片','商品简称','商品标签','国标码','商品名','分类','虚拟分类','商品属性','商品状态','单位','主仓位','颜色及规格','重量','体积','品牌','基本售价','成本价','市场|吊牌价','供应商名','供应商商品编码','库存同步','其它价格1','其它价格2','其它价格3','其它价格4','其它价格5','其它属性1','其它属性2','其它属性3','其它属性4','其它属性5','长','宽','高'];
+const COMBO_HEADERS = ['组合商品编码','组合装商品标签','组合装国标码','组合款式编码','组合商品名称','组合商品简称','组合商品实体编码','虚拟分类','商品图片链接','组合颜色规格','禁止库存同步','基本售价','组合装成本价','长','宽','高','体积','重量','创建时间','修改时间','品牌','备注','商品状态','链接同步状态','虚拟库存','可组装库存','本仓可组装数','其它价格1','其它价格2','其它价格3','其它价格4','其它价格5','其它属性1','其它属性2','其它属性3','其它属性4','其它属性5','商品编码','商品名称','颜色及规格','数量','应占售价','子商品成本价','是否支持留言备注换货'];
+
+$('importZone').onclick = () => $('fileInput').click();
+$('importZone').addEventListener('dragover', e => { e.preventDefault(); $('importZone').classList.add('drag-over'); });
+$('importZone').addEventListener('dragleave', () => $('importZone').classList.remove('drag-over'));
+$('importZone').addEventListener('drop', e => {
+  e.preventDefault();
+  $('importZone').classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
+});
+$('fileInput').addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+
+async function processFile(file) {
+  const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: true });
+  const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1, defval: '' })
+    .filter(row => row.length && String(row[0] || '').trim());
+
+  const found = readSourceRows(rows);
+  state.sizes = parseList(firstText(found.sizeRow).replace('尺码', '')) || ['L', 'XL', 'XXL'];
+  state.articleNo = textAfter(found.artNoRow, '货号') || 'TYDSLR-5286';
+  state.unitPrice = parseNumber(textAfter(found.priceRow, '单价'));
+  state.packPrice = parseNumber(textAfter(found.packPriceRow, '包装价格'));
+  state.certPrice = parseNumber(textAfter(found.certPriceRow, '合格证价格'));
+  state.packColorSpec = textAfter(found.packColorSpecRow, '包装的颜色及规格') || '包装袋';
+  state.certColorSpec = textAfter(found.certColorSpecRow, '合格证的颜色及规格') || '合格证';
+  state.packCode = found.specRows[0]?.[1] != null ? String(found.specRows[0][1]).trim() : '';
+  state.certCode = found.specRows[0]?.[2] != null ? String(found.specRows[0][2]).trim() : '';
+  state.packCodeBySize = Object.fromEntries(state.sizes.map(size => [size, state.packCode]));
+  state.artNoShort = stripPrefix(state.articleNo);
+  state.specs = parseSpecs(found.specRows);
+
+  const groups = groupByCount();
+  const maxGroupCount = Math.max(0, ...Object.values(groups).map(items => items.length));
+  state.groupNames = Array.from({ length: maxGroupCount }, (_, i) => `组${i + 1}`);
+
+  rebuildAll();
+  renderInfo();
+  renderCustomComboBar();
+  renderPackBagBar();
+  toggleLoaded(true);
+}
+
+function readSourceRows(rows) {
+  const result = { specRows: [] };
+  rows.forEach(row => {
+    const value = firstText(row);
+    if (value.includes('条装')) result.specRows.push(row);
+    else if (value.includes('尺码')) result.sizeRow = row;
+    else if (value.includes('货号')) result.artNoRow = row;
+    else if (value.startsWith('单价')) result.priceRow = row;
+    else if (value.includes('包装价格')) result.packPriceRow = row;
+    else if (value.includes('合格证价格')) result.certPriceRow = row;
+    else if (value.includes('包装的颜色及规格')) result.packColorSpecRow = row;
+    else if (value.includes('合格证的颜色及规格')) result.certColorSpecRow = row;
+  });
+  return result;
+}
+
+function firstText(row) { return String(row?.[0] ?? '').trim(); }
+function cleanText(value) { return String(value ?? '').replace(/\s/g, '').trim(); }
+function textAfter(row, label) { return cleanText(firstText(row).replace(label, '')); }
+function parseNumber(value) { const n = parseFloat(cleanText(value)); return Number.isFinite(n) ? n : 0; }
+function parseList(value) {
+  const items = cleanText(value).replace(/，/g, ',').split(/[,，、]/).filter(Boolean);
+  return items.length ? items : null;
+}
+function stripPrefix(code) { return String(code).match(/(\d[\w-]*)$/)?.[1] || code; }
+function parseSpecs(rows) {
+  return rows.map(row => {
+    const matched = firstText(row).match(/【(\d+)条装】(.+)/);
+    if (!matched) return null;
+    return { count: Number(matched[1]), colors: matched[2].split('+').map(s => s.trim()).filter(Boolean) };
+  }).filter(Boolean);
+}
+function groupByCount() {
+  return state.specs.reduce((groups, spec) => {
+    (groups[spec.count] ||= []).push(spec);
+    return groups;
+  }, {});
+}
+function createRow(length, values) {
+  const row = new Array(length).fill(null);
+  Object.entries(values).forEach(([index, value]) => row[index] = value);
+  return row;
+}
+
+function rebuildAll() {
+  buildPtData();
+  buildComboData();
+  renderStats();
+  renderTables();
+}
+
+function buildPtData() {
+  state.ptData = [];
+  Object.entries(groupByCount()).sort(([a], [b]) => a - b).forEach(([count, specs]) => {
+    specs.forEach((spec, index) => {
+      const groupName = state.groupNames[index] || `组${index + 1}`;
+      const colorKey = spec.colors.join('+');
+      const styleCode = `${state.articleNo}-${count}条`;
+      const tag = `${count}条-${groupName}`;
+      state.sizes.forEach(size => {
+        const tagWithSize = `${tag};${size}`;
+        state.ptData.push(createRow(PT_HEADERS.length, {
+          0: styleCode,
+          1: `${styleCode}-${groupName}-${size}`,
+          2: colorKey,
+          4: tagWithSize,
+          6: colorKey,
+          13: tagWithSize
+        }));
+      });
+    });
+  });
+}
+
+function buildComboData() {
+  state.comboData = [];
+  Object.entries(groupByCount()).sort(([a], [b]) => a - b).forEach(([count, specs]) => {
+    specs.forEach((spec, index) => {
+      const groupName = state.groupNames[index] || `组${index + 1}`;
+      const colorKey = spec.colors.join('+');
+      const styleCode = `${state.articleNo}-${count}条`;
+      const tag = `${count}条-${groupName}`;
+      const colorCountMap = spec.colors.reduce((map, color) => ((map[color] = (map[color] || 0) + 1), map), {});
+
+      state.sizes.forEach(size => {
+        const entityCode = `${styleCode}-${groupName}-${size}`;
+        const comboTag = `${tag};${size}`;
+        Object.keys(colorCountMap).forEach(color => addComboChildRow(entityCode, styleCode, colorKey, comboTag, `${state.artNoShort}-${color}-${size}`, `${color};${size}`, colorCountMap[color], state.unitPrice));
+
+        const sizePackCode = state.packCodeBySize[size] || state.packCode;
+        if (sizePackCode) addComboChildRow(entityCode, styleCode, colorKey, comboTag, sizePackCode, `${size}${state.packColorSpec}`, 1, state.packPrice);
+        if (state.certCode) addComboChildRow(entityCode, styleCode, colorKey, comboTag, state.certCode, state.certColorSpec, 1, state.certPrice);
+      });
+    });
+  });
+}
+
+function addComboChildRow(entityCode, styleCode, colorKey, comboTag, itemCode, colorSpec, qty, price) {
+  state.comboData.push(createRow(COMBO_HEADERS.length, {
+    0: entityCode, 3: styleCode, 4: colorKey, 5: colorKey, 6: entityCode,
+    7: comboTag, 9: comboTag, 10: '否', 12: 0, 37: itemCode,
+    38: '', 39: colorSpec, 40: qty, 41: price, 42: 0
+  }));
+}
+
+function renderInfo() {
+  const colorCount = new Set(state.specs.flatMap(spec => spec.colors)).size;
+  const chips = [
+    ['货号', state.articleNo], ['尺码', state.sizes.join(' / ')], ['颜色种类', colorCount], ['组合数', state.specs.length],
+    state.unitPrice ? ['单价', state.unitPrice] : null,
+    state.packPrice ? ['包装价格', state.packPrice] : null,
+    state.certPrice ? ['合格证价格', state.certPrice] : null
+  ].filter(Boolean);
+  $('infoBar').innerHTML = chips.map(([label, value]) => `<div class="info-chip">${label}：<span>${esc(value)}</span></div>`).join('');
+}
+
+function renderStats() {
+  $('summaryBar').innerHTML = `
+    <div class="summary-item"><div class="label">普通商品表</div><div class="value">${state.ptData.length} 行</div></div>
+    <div class="summary-item"><div class="label">组合装表</div><div class="value">${state.comboData.length} 行</div></div>`;
+  $('ptStats').textContent = `${state.ptData.length} 行`;
+  $('comboStats').textContent = `${state.comboData.length} 行`;
+}
+
+function renderCustomComboBar() {
+  const bar = $('customComboBar');
+  if (!state.groupNames.length) return bar.style.display = 'none';
+  bar.style.display = 'flex';
+  bar.innerHTML = state.groupNames.map((name, index) => `
+    <label><span>${index + 1}组：</span><input type="text" id="cg-${index}" value="${esc(name)}" placeholder="组${index + 1}"></label>`).join('') + `
+    <div class="bar-actions"><button class="btn btn-sm btn-reset" onclick="resetGroupNames()">重置</button><button class="btn btn-sm btn-apply" onclick="applyGroupNames()">应用</button></div>`;
+}
+function applyGroupNames() {
+  state.groupNames = Array.from(document.querySelectorAll('#customComboBar input')).map(input => input.value.trim()).filter((_, i) => i < state.groupNames.length);
+  rebuildAll();
+}
+function resetGroupNames() {
+  state.groupNames = state.groupNames.map((_, i) => `组${i + 1}`);
+  rebuildAll();
+  renderCustomComboBar();
+}
+
+function renderPackBagBar() {
+  if (!state.sizes.length || !state.packCode) return $('packBagBar').style.display = 'none';
+  $('packBagBar').style.display = 'block';
+  $('packBagRows').innerHTML = state.sizes.map(size => `
+    <div class="pack-row"><span class="size-label">${esc(size)}</span><input type="text" id="pb-${esc(size)}" value="${esc(state.packCodeBySize[size] || state.packCode)}" placeholder="${esc(state.packCode)}"></div>`).join('');
+}
+function applyPackBag() {
+  state.sizes.forEach(size => {
+    const input = $(`pb-${size}`);
+    if (input) state.packCodeBySize[size] = input.value.trim() || state.packCode;
+  });
+  buildComboData();
+  renderStats();
+  renderTables();
+}
+function resetPackBag() {
+  state.packCodeBySize = Object.fromEntries(state.sizes.map(size => [size, state.packCode]));
+  renderPackBagBar();
+  buildComboData();
+  renderStats();
+  renderTables();
+}
+
+function renderTables() {
+  renderTable('ptPreview', state.ptData, [0, 1, 2, 4, 13], ['款式编码', '商品编码', '图片', '商品标签', '颜色及规格']);
+  renderTable('comboPreview', state.comboData, [0, 3, 4, 6, 7, 9, 37, 39, 40, 41], ['组合商品编码', '组合款式编码', '组合商品名称', '组合商品实体编码', '虚拟分类', '组合颜色规格', '商品编码', '颜色及规格', '数量', '应占售价']);
+}
+function renderTable(targetId, data, columns, headers) {
+  const body = data.slice(0, 300).map(row => `<tr>${columns.map(index => `<td title="${esc(row[index])}">${esc(row[index])}</td>`).join('')}</tr>`).join('');
+  $(targetId).innerHTML = `<table><thead><tr>${headers.map(title => `<th>${title}</th>`).join('')}</tr></thead><tbody>${body || `<tr><td colspan="${headers.length}">无数据</td></tr>`}</tbody></table>`;
+}
+
+function exportTable(type) {
+  const wb = XLSX.utils.book_new();
+  const isPt = type === 'pt';
+  const ws = XLSX.utils.aoa_to_sheet([isPt ? PT_HEADERS : COMBO_HEADERS, ...(isPt ? state.ptData : state.comboData)]);
+  XLSX.utils.book_append_sheet(wb, ws, isPt ? '普通商品' : '组合装');
+  XLSX.writeFile(wb, isPt ? '普通商品表.xlsx' : '组合装表.xlsx');
+}
+
+function toggleLoaded(loaded) {
+  ['infoBar', 'summaryBar'].forEach(id => $(id).style.display = loaded ? 'flex' : 'none');
+  $('mainGrid').style.display = loaded ? 'grid' : 'none';
+  $('btnExportPt').disabled = !loaded;
+  $('btnExportCombo').disabled = !loaded;
+}
+function clearData() {
+  Object.assign(state, { ptData: [], comboData: [], specs: [], sizes: [], groupNames: [], packCodeBySize: {} });
+  toggleLoaded(false);
+  $('customComboBar').style.display = 'none';
+  $('packBagBar').style.display = 'none';
+  $('ptPreview').innerHTML = '<div class="empty-state">等待导入文件...</div>';
+  $('comboPreview').innerHTML = '<div class="empty-state">等待导入文件...</div>';
+  $('fileInput').value = '';
+}
+</script>
+</body>
+</html>
